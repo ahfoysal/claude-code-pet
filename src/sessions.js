@@ -1,6 +1,6 @@
 import {
   STATE_IDLE, STATE_SLEEP, STATE_WAITING, STATE_DONE, STATE_ERROR,
-  KIND_PRIORITY, LINGER, WORKING_STALL_MS, SESSION_EXPIRE_MS, SLEEP_AFTER_MS,
+  KIND_PRIORITY, LINGER, WORKING_STALL_MS, IDLE_EXPIRE_MS, SESSION_EXPIRE_MS, SLEEP_AFTER_MS,
   stateForEvent, detailForEvent, projectForEvent,
 } from "./states.js";
 import { getCharacterForState, getCurrentThemeName } from "./themes.js";
@@ -74,24 +74,29 @@ function absorbSnapshot(event) {
 
   let ts = Number(event.last_activity_at) || 0;
   if (ts > 0 && ts < 1e12) ts *= 1000; // seconds → ms
-  const recent = ts > 0 && Date.now() - ts < 30 * 60 * 1000;
   const archived = event.archived === true || event.archived === "True";
+  // Only surface desktop sessions that are genuinely current (active in the
+  // last couple of minutes). Old idle chats must not fill the panel.
+  const stale = ts > 0 && Date.now() - ts > IDLE_EXPIRE_MS;
 
   let s = sessions[sid];
   if (!s) {
-    // Only surface sessions that are current and still open.
-    if (!recent || archived) return;
+    if (stale || archived) return;
     s = getOrCreateSession(sid);
-    s.lastSeen = ts;
+    s.lastSeen = ts || Date.now();
   }
 
+  // Chat title always refreshes (even for live hook-driven sessions).
   if (event.thread_title) s.title = String(event.thread_title).slice(0, 60);
   if (!s.cwd && typeof event.cwd === "string" && event.cwd) {
     s.cwd = event.cwd;
     s.project = projectForEvent(event) || s.project;
   }
-  if (ts > s.lastSeen && s.state.kind === "idle") s.lastSeen = ts;
-  if (archived && s.state.kind === "idle") delete sessions[sid];
+  // Keep an idle session alive only while its snapshot is still recent.
+  if (!stale && ts > s.lastSeen && s.state.kind === "idle") s.lastSeen = ts;
+  if ((archived || stale) && s.state.kind === "idle") {
+    delete sessions[sid];
+  }
 
   refreshDisplay();
 }
@@ -100,7 +105,11 @@ export function cleanupSessions() {
   const now = Date.now();
   let changed = false;
   for (const [id, s] of Object.entries(sessions)) {
-    if (now - s.lastSeen > SESSION_EXPIRE_MS) {
+    if (s.state.kind === "idle" && now - s.lastSeen > IDLE_EXPIRE_MS) {
+      // Idle sessions drop off after 2 minutes.
+      delete sessions[id];
+      changed = true;
+    } else if (now - s.lastSeen > SESSION_EXPIRE_MS) {
       delete sessions[id];
       changed = true;
     } else if (s.state.kind === "working" && now - s.lastSeen > WORKING_STALL_MS) {

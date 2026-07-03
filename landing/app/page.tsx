@@ -167,18 +167,25 @@ function Hero() {
   );
 }
 
-/* Hopping pets marquee band */
+/* Hopping pets marquee band — two identical groups scroll seamlessly */
 function HopBand() {
-  const pets = ["quacks", "embyr", "owlbert", "boulder", "sprout", "stax", "oops", "voidling", "clawd"];
-  const row = [...pets, ...pets];
+  const base = ["quacks", "embyr", "owlbert", "boulder", "sprout", "stax", "oops", "voidling", "clawd"];
+  // Repeat enough that one group is wider than any screen (no blank gap).
+  const group = [...base, ...base, ...base];
+  const Group = ({ startAt = 0 }: { startAt?: number }) => (
+    <div className="flex shrink-0 items-center gap-10 pr-10">
+      {group.map((p, i) => (
+        <div key={i} className="animate-floaty" style={{ animationDelay: `${((i + startAt) % 5) * 0.2}s` }}>
+          <PetSprite pet={p} state="idle" size={46} />
+        </div>
+      ))}
+    </div>
+  );
   return (
     <div className="relative my-6 overflow-hidden border-y-[3px] border-night/60 bg-night/40 py-4">
-      <div className="flex w-max animate-marquee gap-10">
-        {row.map((p, i) => (
-          <div key={i} className="animate-floaty" style={{ animationDelay: `${(i % 5) * 0.2}s` }}>
-            <PetSprite pet={p} state="idle" size={46} />
-          </div>
-        ))}
+      <div className="flex w-max animate-marquee">
+        <Group />
+        <Group startAt={2} />
       </div>
     </div>
   );

@@ -50,7 +50,9 @@ export const SPRITE_FALLBACK = {
 export const LINGER = { done: 30 * 60 * 1000, error: 60 * 60 * 1000, hello: 2500 };
 // A "working" session with no events for this long is considered stalled → idle.
 export const WORKING_STALL_MS = 3 * 60 * 1000;
-// Sessions disappear from the list entirely after this much inactivity.
+// Idle sessions drop off the list after this (keeps the panel to what's live).
+export const IDLE_EXPIRE_MS = 2 * 60 * 1000;
+// Hard cap: any session disappears after this much total inactivity.
 export const SESSION_EXPIRE_MS = 30 * 60 * 1000;
 // Pet falls asleep when everything has been idle for this long.
 export const SLEEP_AFTER_MS = 2 * 60 * 1000;
