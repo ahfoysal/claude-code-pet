@@ -76,7 +76,22 @@ function Nav() {
   );
 }
 
+const HERO_LINES = [
+  { p: "distill-saas", d: "Running · npm run test", spin: true, c: "#8be04a", pet: "work" },
+  { p: "portfolio", d: "Reading · App.tsx", spin: true, c: "#8be04a", pet: "work" },
+  { p: "claude-code-pet", d: "Needs your input · permission", spin: false, c: "#ffd23f", pet: "notification" },
+  { p: "artistly", d: "Ready for review — tests pass", spin: false, c: "#2de2e6", pet: "taskDone" },
+  { p: "distill-engine", d: "Something went wrong · retry", spin: false, c: "#ff5f6d", pet: "error" },
+];
+
 function Hero() {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setI((v) => (v + 1) % HERO_LINES.length), 2400);
+    return () => clearInterval(id);
+  }, []);
+  const l = HERO_LINES[i];
+
   return (
     <section id="top" className="relative mx-auto flex max-w-5xl flex-col items-center px-6 pt-36 pb-8 text-center">
       <motion.div
@@ -129,43 +144,26 @@ function Hero() {
         className="relative mt-16 flex flex-col items-center"
       >
         <div className="bubble-card mb-5 w-[300px] px-4 py-3 text-left text-night">
-          <LiveLine />
+          <motion.div key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+            <div className="flex items-center justify-between">
+              <span className="font-sans text-[15px] font-bold">{l.p}</span>
+              {l.spin ? (
+                <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+              ) : (
+                <span className="h-3.5 w-3.5 rounded-full" style={{ background: l.c }} />
+              )}
+            </div>
+            <div className="mt-0.5 font-sans text-[12px] text-gray-500">{l.d}</div>
+          </motion.div>
         </div>
+        {/* The pet matches the bubble's current activity */}
         <div className="animate-floaty">
-          <PetSprite pet="clawd" state="work" size={150} />
+          <PetSprite pet="clawd" state={l.pet} size={150} />
         </div>
         <div className="mt-1 h-3 w-40 rounded-full bg-pink/40 blur-md" />
         <div className="mt-3 h-2 w-52 bg-gradient-to-r from-transparent via-cyan/60 to-transparent" />
       </motion.div>
     </section>
-  );
-}
-
-function LiveLine() {
-  const lines = [
-    { p: "distill-saas", d: "Running · npm run test", spin: true, c: "#8be04a" },
-    { p: "portfolio", d: "Editing · App.tsx", spin: true, c: "#8be04a" },
-    { p: "claude-code-pet", d: "Needs your input · permission", spin: false, c: "#ffd23f" },
-    { p: "artistly", d: "Ready for review — tests pass", spin: false, c: "#2de2e6" },
-  ];
-  const [i, setI] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => setI((v) => (v + 1) % lines.length), 2400);
-    return () => clearInterval(id);
-  }, [lines.length]);
-  const l = lines[i];
-  return (
-    <motion.div key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-      <div className="flex items-center justify-between">
-        <span className="font-sans text-[15px] font-bold">{l.p}</span>
-        {l.spin ? (
-          <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
-        ) : (
-          <span className="h-3.5 w-3.5 rounded-full" style={{ background: l.c }} />
-        )}
-      </div>
-      <div className="mt-0.5 font-sans text-[12px] text-gray-500">{l.d}</div>
-    </motion.div>
   );
 }
 
