@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🐾 Claude Code Pet
+# Claude Code Pet
 
 **A pixel-art desk companion for Claude Code — for macOS & Windows.**
 
@@ -33,7 +33,7 @@ A little pixel creature floats above all your windows and reacts to what Claude 
 <td width="50%"><img src="docs/shot-waiting.png" alt="Waiting"><br><b>Needs you</b> — a red <code>!</code> pops up, the status blinks, and a chime plays when Claude asks for permission. The alert stays until you respond.</td>
 </tr>
 <tr>
-<td width="50%"><img src="docs/shot-review.png" alt="Ready for review"><br><b>Ready for review</b> — a green ✓ and a soft ding when a turn finishes, with Claude's summary kept in the bubble.</td>
+<td width="50%"><img src="docs/shot-review.png" alt="Ready for review"><br><b>Ready for review</b> — a green check and a soft ding when a turn finishes, with Claude's summary kept in the bubble.</td>
 <td width="50%"><img src="docs/shot-panel.png" alt="Multiple sessions"><br><b>Multiple sessions</b> — a badge counts active chats; click it for a panel listing each one by name, state, and last activity.</td>
 </tr>
 </table>
@@ -47,7 +47,7 @@ A little pixel creature floats above all your windows and reacts to what Claude 
 - **Session panel** — every open Claude chat with its title, state, and relative time. Auto-opens when two or more are busy.
 - **Click to jump** — click the pet or the bubble to bring the Claude app to the front.
 - **Sound alerts** — subtle WebAudio chimes for needs-input, done, and error. Toggleable, no audio files.
-- **9 built-in pets** + custom pets via deep link. Right-click → Theme to switch.
+- **9 built-in pets** + custom pets via deep link. Right-click and pick a Theme to switch.
 - **Follows you** — remembers where you drag it (clamped on-screen), waddles while dragging, hops on hover.
 - **Safe by design** — the event bridge is local-only (`127.0.0.1`), hook payloads are display-only (never executed), and hook install writes a timestamped backup of your settings.
 
@@ -57,15 +57,15 @@ All original pixel art, animated per state (breathing idle, laptop-typing while 
 
 | Pet | Vibe |
 |---|---|
-| 🐱 **Clawd** | The original Claude companion |
-| 🦆 **Quacks** | A tidy duck for calm workspace days |
-| 🔥 **Embyr** | Hot-path energy for fast iteration |
-| 🦉 **Owlbert** | Sharp eyes for polished work in a blink |
-| 🪨 **Boulder** | A steady rock when the diff gets large |
-| 🌱 **Sprout** | Small green shoots for new ideas |
-| 📚 **Stax** | A balanced stack for deep work |
-| 💙 **Oops** | A tiny crash-screen gremlin with a soft heart |
-| 👻 **Voidling** | A quiet signal from the void |
+| **Clawd** | The original Claude companion |
+| **Quacks** | A tidy duck for calm workspace days |
+| **Embyr** | Hot-path energy for fast iteration |
+| **Owlbert** | Sharp eyes for polished work in a blink |
+| **Boulder** | A steady rock when the diff gets large |
+| **Sprout** | Small green shoots for new ideas |
+| **Stax** | A balanced stack for deep work |
+| **Oops** | A tiny crash-screen gremlin with a soft heart |
+| **Voidling** | A quiet signal from the void |
 
 <div align="center"><img src="docs/shot-roster.png" width="640" alt="The full pet roster, animated"></div>
 
@@ -84,7 +84,7 @@ npm install
 npm run build
 ```
 
-### 🍎 macOS
+### macOS
 
 ```bash
 ./install.sh                                              # copies binary + pets to ~/.claude-code-pet
@@ -92,9 +92,9 @@ npm run build
 open "src-tauri/target/release/bundle/macos/Claude Code Pet.app"
 ```
 
-Drag `Claude Code Pet.app` to `/Applications`. Optionally add it to **System Settings → General → Login Items** to always have it ready.
+Drag `Claude Code Pet.app` to `/Applications`. Optionally add it to **System Settings > General > Login Items** to always have it ready.
 
-### 🪟 Windows
+### Windows
 
 ```powershell
 .\install.ps1                                             # copies binary + pets to %LOCALAPPDATA%\claude-code-pet
