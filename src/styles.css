@@ -111,22 +111,28 @@ body {
 }
 
 /* Collapse chevron under the bubble — only revealed on hover */
+/* Collapse chevron — absolutely pinned under the bubble so it never takes
+   layout space; only revealed on hover. */
 #bubble-toggle {
-  align-self: flex-end;
-  margin: -6px 34px 4px 0;
-  width: 26px;
-  height: 26px;
+  position: absolute;
+  bottom: -13px;
+  right: 30px;
+  width: 24px;
+  height: 24px;
   border: none;
   border-radius: 50%;
   background: var(--card-bg);
-  box-shadow: 0 2px 8px rgba(16, 20, 28, 0.16);
+  box-shadow: 0 2px 8px rgba(16, 20, 28, 0.18);
   color: var(--body);
-  font: 700 13px/1 var(--pet-font);
+  font: 700 12px/1 var(--pet-font);
   cursor: pointer;
-  z-index: 4;
+  z-index: 5;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.15s ease;
+  display: grid;
+  place-items: center;
+  padding-bottom: 2px;
 }
 
 #stage:hover #bubble-toggle {
@@ -136,7 +142,7 @@ body {
 
 #bubble-toggle:hover {
   color: var(--title);
-  transform: translateY(1px);
+  background: #f3f5f8;
 }
 
 /* ── Status icons ────────────────────────────────────── */

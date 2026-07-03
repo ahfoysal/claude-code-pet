@@ -347,8 +347,6 @@ export function refreshDisplay() {
   // The ⌄ button tucks the whole pet away, same as double-click.
   const greeting = !top && Date.now() - bootTime < 8000;
   const showBubble = !tucked && !panelOpen && (top || greeting);
-  const toggleEl = document.getElementById("bubble-toggle");
-  toggleEl.style.display = showBubble ? "" : "none";
 
   if (showBubble && !top && greeting) {
     // First wake: "Hi, I'm {petName}"

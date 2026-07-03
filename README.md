@@ -8,6 +8,12 @@ A little pixel creature floats above all your windows — every Space, even full
 
 <img src="docs/demo.gif" width="440" alt="Claude Code Pet demo — the pet reacts as Claude reads, edits, runs commands, waits for input, and finishes.">
 
+<br>
+
+<img src="docs/shot-hero.png" width="150" alt="The pet typing away on its laptop while Claude works.">
+
+*Heads-down and typing while Claude works.*
+
 </div>
 
 ---

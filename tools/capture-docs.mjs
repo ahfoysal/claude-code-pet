@@ -87,6 +87,23 @@ async function shots(browser) {
   await page.screenshot({ path: join(DOCS, "shot-roster.png"), fullPage: true });
   await page.close();
 
+  // 6. Hero close-up — the pet typing on its laptop (crisp @2x, no bubble)
+  page = await browser.newPage({ viewport: VIEW, deviceScaleFactor: 2 });
+  await page.goto(`${BASE}/index.html`);
+  await page.addStyleTag({ content: DESK_BG + "\n#bubble,#panel{display:none !important}" });
+  await page.waitForFunction(() => !!window.__petDebug, null, { timeout: 10000 });
+  await page.evaluate(() => localStorage.clear());
+  await send(page, SCRIPT.snapshot);
+  await send(page, SCRIPT.bash);
+  await page.waitForTimeout(500);
+  const box = await page.locator("#character-area").boundingBox();
+  const pad = 20;
+  await page.screenshot({
+    path: join(DOCS, "shot-hero.png"),
+    clip: { x: box.x - pad, y: box.y - pad, width: box.width + pad * 2, height: box.height + pad * 2 },
+  });
+  await page.close();
+
   console.log("✓ screenshots");
 }
 
