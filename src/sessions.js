@@ -432,6 +432,34 @@ export function refreshDisplay() {
   } else {
     panelEl.classList.add("hidden");
   }
+
+  reportHitRegions();
+}
+
+// Tell the Rust side exactly which pixels are the pet (so the rest of the
+// transparent window lets clicks through to the app underneath).
+let hitRaf = 0;
+function reportHitRegions() {
+  if (!window.__TAURI__) return;
+  cancelAnimationFrame(hitRaf);
+  hitRaf = requestAnimationFrame(() => {
+    const dpr = window.devicePixelRatio || 1;
+    const pad = 6; // CSS px of slack around each element
+    const regions = [];
+    for (const id of ["character-area", "bubble", "panel"]) {
+      const el = document.getElementById(id);
+      if (!el || el.classList.contains("hidden")) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width < 1 || r.height < 1) continue;
+      regions.push([
+        (r.left - pad) * dpr,
+        (r.top - pad) * dpr,
+        (r.width + pad * 2) * dpr,
+        (r.height + pad * 2) * dpr,
+      ]);
+    }
+    window.__TAURI__.core.invoke("set_hit_regions", { regions }).catch(() => {});
+  });
 }
 
 export function resetSessions() {
