@@ -1,218 +1,198 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import PetSprite from "../components/PetSprite";
+import { AppleMark, WindowsMark, GithubMark } from "../components/Logos";
 
 const GITHUB = "https://github.com/ahfoysal/claude-code-pet";
 
 const ROSTER = [
-  { id: "clawd", name: "Clawd", vibe: "The original companion" },
-  { id: "quacks", name: "Quacks", vibe: "Calm workspace days" },
-  { id: "embyr", name: "Embyr", vibe: "Fast iteration energy" },
-  { id: "owlbert", name: "Owlbert", vibe: "Sharp-eyed polish" },
-  { id: "boulder", name: "Boulder", vibe: "Steady on big diffs" },
-  { id: "sprout", name: "Sprout", vibe: "Fresh ideas" },
-  { id: "stax", name: "Stax", vibe: "Deep-work focus" },
-  { id: "oops", name: "Oops", vibe: "Crash-screen charm" },
-  { id: "voidling", name: "Voidling", vibe: "Signal from the void" },
+  { id: "clawd", name: "CLAWD", vibe: "The original" },
+  { id: "quacks", name: "QUACKS", vibe: "Calm days" },
+  { id: "embyr", name: "EMBYR", vibe: "Fast iteration" },
+  { id: "owlbert", name: "OWLBERT", vibe: "Sharp eyes" },
+  { id: "boulder", name: "BOULDER", vibe: "Big diffs" },
+  { id: "sprout", name: "SPROUT", vibe: "Fresh ideas" },
+  { id: "stax", name: "STAX", vibe: "Deep work" },
+  { id: "oops", name: "OOPS", vibe: "Crash charm" },
+  { id: "voidling", name: "VOIDLING", vibe: "The void" },
 ];
 
 const STATES = [
-  { state: "work", label: "Running", sub: "types on its laptop while Claude works", dot: "#4cc38a" },
-  { state: "notification", label: "Needs you", sub: "alerts when Claude asks for input", dot: "#f5a524" },
-  { state: "taskDone", label: "Ready for review", sub: "celebrates when a turn finishes", dot: "#6e9bf5" },
-  { state: "stop", label: "Idle", sub: "naps quietly between tasks", dot: "#8a8f9d" },
+  { state: "work", label: "RUNNING", sub: "types while Claude works", color: "#8be04a" },
+  { state: "notification", label: "NEEDS YOU", sub: "alerts for your input", color: "#ffd23f" },
+  { state: "taskDone", label: "REVIEW", sub: "done — take a look", color: "#2de2e6" },
+  { state: "stop", label: "IDLE", sub: "naps between tasks", color: "#a58fd0" },
 ];
 
 const FEATURES = [
-  { icon: "🪟", title: "Floats over everything", body: "Always on top — every Space, every fullscreen app, no Dock clutter." },
-  { icon: "⚡", title: "Real-time, real source", body: "Driven by Claude Code hooks & transcripts. Never fake timers." },
-  { icon: "💬", title: "Live status bubble", body: "Chat name, Claude's latest reply, and the exact tool running." },
-  { icon: "🔔", title: "Needs-input alerts", body: "A red ! and a chime the moment Claude waits for you." },
-  { icon: "🗂️", title: "Every session at a glance", body: "A badge counts active chats; a panel lists each one." },
-  { icon: "🚀", title: "Opens with Claude", body: "Auto-launches when you start a Claude Code session." },
-  { icon: "🎨", title: "9 pets + your own", body: "Swap creatures, or install any pet from a link." },
-  { icon: "🔒", title: "Local & open source", body: "Events stay on 127.0.0.1. MIT licensed, fully auditable." },
+  ["ALWAYS ON TOP", "Floats over every window, Space, and fullscreen app."],
+  ["REAL EVENTS", "Driven by Claude Code hooks & transcripts. No fake timers."],
+  ["LIVE BUBBLE", "Chat name, Claude's latest reply, and the tool running now."],
+  ["INPUT ALERTS", "A red ! and a chime the moment Claude waits for you."],
+  ["ALL SESSIONS", "A badge counts active chats; a panel lists each one."],
+  ["OPENS W/ CLAUDE", "Auto-launches when you start a Claude Code session."],
+  ["9 PETS + YOURS", "Swap creatures or install any pet from a link."],
+  ["OPEN SOURCE", "Local-only. MIT licensed. Fully auditable."],
 ];
 
 export default function Page() {
   return (
-    <main className="relative min-h-screen">
-      <Backdrop />
+    <main className="scanlines relative min-h-screen overflow-hidden">
+      <div className="arcade-bg pointer-events-none fixed inset-0 -z-10" />
+      <div className="grid-floor pointer-events-none fixed -z-10" />
       <Nav />
       <Hero />
+      <HopBand />
       <StatesSection />
       <RosterSection />
       <FeaturesSection />
       <InstallSection />
-      <LaunchCTA />
+      <CTASection />
       <Footer />
     </main>
   );
 }
 
-/* ── Backdrop ─────────────────────────────────────────── */
-function Backdrop() {
-  return (
-    <div className="pointer-events-none fixed inset-0 -z-10">
-      <div className="mesh absolute inset-0 animate-shimmer" />
-      <div className="grain absolute inset-0" />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-ink/40 to-ink" />
-      {/* drifting background pets */}
-      <FloatPet pet="embyr" style={{ top: "18%", left: "8%" }} size={64} delay={0} />
-      <FloatPet pet="quacks" style={{ top: "62%", left: "4%" }} size={52} delay={2} />
-      <FloatPet pet="owlbert" style={{ top: "30%", right: "7%" }} size={60} delay={1} />
-      <FloatPet pet="sprout" style={{ top: "72%", right: "10%" }} size={48} delay={3} />
-    </div>
-  );
-}
-
-function FloatPet({ pet, style, size, delay }: { pet: string; style: React.CSSProperties; size: number; delay: number }) {
-  return (
-    <div className="absolute animate-drift opacity-30 blur-[0.5px]" style={{ ...style, animationDelay: `${delay}s` }}>
-      <PetSprite pet={pet} state="idle" size={size} />
-    </div>
-  );
-}
-
-/* ── Nav ──────────────────────────────────────────────── */
 function Nav() {
   return (
-    <nav className="fixed top-0 z-50 w-full">
-      <div className="glass mx-auto mt-3 flex max-w-5xl items-center justify-between rounded-2xl px-4 py-2.5">
-        <a href="#top" className="flex items-center gap-2 font-bold tracking-tight">
-          <PetSprite pet="clawd" state="idle" size={30} />
-          <span>Claude Code Pet</span>
+    <nav className="fixed top-0 z-50 w-full px-3 pt-3">
+      <div className="panel mx-auto flex max-w-5xl items-center justify-between rounded-none px-4 py-2.5">
+        <a href="#top" className="flex items-center gap-2">
+          <PetSprite pet="clawd" state="idle" size={28} />
+          <span className="pixel-font text-[11px] text-cream">CLAUDE CODE PET</span>
         </a>
-        <div className="hidden items-center gap-6 text-sm text-cream/70 sm:flex">
-          <a href="#states" className="hover:text-cream">How it works</a>
-          <a href="#pets" className="hover:text-cream">Pets</a>
-          <a href="#install" className="hover:text-cream">Install</a>
+        <div className="hidden items-center gap-6 text-xl text-cream/70 sm:flex">
+          <a href="#states" className="hover:text-pink">how it works</a>
+          <a href="#pets" className="hover:text-cyan">pets</a>
+          <a href="#install" className="hover:text-gold">install</a>
         </div>
-        <a
-          href={GITHUB}
-          target="_blank"
-          className="rounded-full bg-cream px-4 py-1.5 text-sm font-semibold text-ink transition hover:opacity-90"
-        >
-          ★ GitHub
+        <a href={GITHUB} target="_blank" className="btn-arcade rounded-none bg-cream text-night">
+          <GithubMark size={16} /> STAR
         </a>
       </div>
     </nav>
   );
 }
 
-/* ── Hero ─────────────────────────────────────────────── */
 function Hero() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, 120]);
-
   return (
-    <section id="top" ref={ref} className="relative mx-auto flex max-w-5xl flex-col items-center px-6 pt-36 pb-20 text-center">
+    <section id="top" className="relative mx-auto flex max-w-5xl flex-col items-center px-6 pt-36 pb-8 text-center">
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="glass mb-6 rounded-full px-4 py-1.5 text-xs font-medium text-cream/80"
+        transition={{ duration: 0.5 }}
+        className="pixel-font mb-8 text-[10px] text-gold"
       >
-        🐾 A desk companion for Claude Code · macOS &amp; Windows
+        <span className="animate-blink">▸</span> INSERT COIN · MACOS &amp; WINDOWS
       </motion.div>
 
       <motion.h1
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.05 }}
-        className="max-w-3xl text-5xl font-extrabold leading-[1.05] tracking-tight sm:text-7xl"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
+        className="pixel-font text-3xl leading-[1.5] sm:text-5xl"
       >
-        Your code has a <span className="text-gradient">pet</span> now.
+        <span className="neon">CLAUDE</span> <span className="neon-cyan">CODE</span>
+        <br />
+        <span className="neon-gold">PET</span>
       </motion.h1>
 
       <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.15 }}
-        className="mt-6 max-w-xl text-lg text-cream/70"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3, duration: 0.6 }}
+        className="mt-8 max-w-md text-2xl leading-snug text-cream/80"
       >
         A pixel creature that lives on your desktop and reacts to Claude Code in
         real time — showing what it&apos;s doing, and tapping you when it needs a hand.
       </motion.p>
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.25 }}
-        className="mt-9 flex flex-wrap items-center justify-center gap-3"
+        transition={{ delay: 0.45, duration: 0.5 }}
+        className="mt-10 flex flex-wrap items-center justify-center gap-4"
       >
-        <a href="#install" className="group rounded-full bg-ember px-6 py-3 font-semibold text-ink shadow-lg shadow-ember/30 transition hover:brightness-110">
-          Get the pet →
-        </a>
-        <a href={GITHUB} target="_blank" className="glass rounded-full px-6 py-3 font-semibold text-cream transition hover:bg-white/10">
-          ★ Star on GitHub
+        <a href="#install" className="btn-arcade rounded-none bg-pink text-white">▶ GET THE PET</a>
+        <a href={GITHUB} target="_blank" className="btn-arcade rounded-none bg-cyan text-night">
+          <GithubMark size={16} /> STAR ON GITHUB
         </a>
       </motion.div>
 
-      {/* Live hero stage */}
+      {/* Pet on a glowing platform */}
       <motion.div
-        style={{ y }}
-        initial={{ opacity: 0, scale: 0.96 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, delay: 0.3 }}
-        className="relative mt-16 flex w-full flex-col items-center"
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.7 }}
+        className="relative mt-16 flex flex-col items-center"
       >
-        <LiveBubble />
-        <div className="mt-2 animate-floaty">
-          <PetSprite pet="clawd" state="work" size={168} />
+        <div className="bubble-card mb-5 w-[300px] px-4 py-3 text-left text-night">
+          <LiveLine />
         </div>
-        <div className="mx-auto -mt-3 h-3 w-28 rounded-full bg-black/40 blur-md" />
+        <div className="animate-floaty">
+          <PetSprite pet="clawd" state="work" size={150} />
+        </div>
+        <div className="mt-1 h-3 w-40 rounded-full bg-pink/40 blur-md" />
+        <div className="mt-3 h-2 w-52 bg-gradient-to-r from-transparent via-cyan/60 to-transparent" />
       </motion.div>
     </section>
   );
 }
 
-/* Types through realistic statuses like the real pet */
-function LiveBubble() {
+function LiveLine() {
   const lines = [
-    { project: "distill-saas", detail: "Running · npm run test", dot: "#4cc38a", spin: true },
-    { project: "portfolio", detail: "Editing · App.tsx", dot: "#4cc38a", spin: true },
-    { project: "claude-code-pet", detail: "Needs your input · permission to run Bash", dot: "#f5a524", spin: false },
-    { project: "artistly", detail: "Ready for review — all tests pass", dot: "#6e9bf5", spin: false },
+    { p: "distill-saas", d: "Running · npm run test", spin: true, c: "#8be04a" },
+    { p: "portfolio", d: "Editing · App.tsx", spin: true, c: "#8be04a" },
+    { p: "claude-code-pet", d: "Needs your input · permission", spin: false, c: "#ffd23f" },
+    { p: "artistly", d: "Ready for review — tests pass", spin: false, c: "#2de2e6" },
   ];
   const [i, setI] = useState(0);
   useEffect(() => {
-    const id = setInterval(() => setI((v) => (v + 1) % lines.length), 2600);
+    const id = setInterval(() => setI((v) => (v + 1) % lines.length), 2400);
     return () => clearInterval(id);
   }, [lines.length]);
   const l = lines[i];
   return (
-    <motion.div
-      key={i}
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
-      className="w-[300px] rounded-2xl bg-white px-4 py-3 text-left text-ink shadow-2xl"
-    >
+    <motion.div key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
       <div className="flex items-center justify-between">
-        <span className="text-[15px] font-bold">{l.project}</span>
+        <span className="font-sans text-[15px] font-bold">{l.p}</span>
         {l.spin ? (
           <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
         ) : (
-          <span className="h-3.5 w-3.5 rounded-full" style={{ background: l.dot }} />
+          <span className="h-3.5 w-3.5 rounded-full" style={{ background: l.c }} />
         )}
       </div>
-      <div className="mt-1 truncate text-[12.5px] text-gray-500">{l.detail}</div>
+      <div className="mt-0.5 font-sans text-[12px] text-gray-500">{l.d}</div>
     </motion.div>
   );
 }
 
-/* ── Reveal helper ────────────────────────────────────── */
+/* Hopping pets marquee band */
+function HopBand() {
+  const pets = ["quacks", "embyr", "owlbert", "boulder", "sprout", "stax", "oops", "voidling", "clawd"];
+  const row = [...pets, ...pets];
+  return (
+    <div className="relative my-6 overflow-hidden border-y-[3px] border-night/60 bg-night/40 py-4">
+      <div className="flex w-max animate-marquee gap-10">
+        {row.map((p, i) => (
+          <div key={i} className="animate-floaty" style={{ animationDelay: `${(i % 5) * 0.2}s` }}>
+            <PetSprite pet={p} state="idle" size={46} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Reveal({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 22 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.6, delay }}
+      viewport={{ once: true, margin: "-70px" }}
+      transition={{ duration: 0.5, delay }}
       className={className}
     >
       {children}
@@ -220,37 +200,28 @@ function Reveal({ children, className = "", delay = 0 }: { children: React.React
   );
 }
 
-function SectionHead({ eyebrow, title, sub }: { eyebrow: string; title: string; sub?: string }) {
+function Head({ tag, title, tagColor = "text-pink" }: { tag: string; title: string; tagColor?: string }) {
   return (
-    <Reveal className="mx-auto mb-14 max-w-2xl text-center">
-      <div className="mb-3 text-sm font-semibold uppercase tracking-widest text-ember">{eyebrow}</div>
-      <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{title}</h2>
-      {sub && <p className="mt-4 text-cream/60">{sub}</p>}
+    <Reveal className="mb-12 text-center">
+      <div className={`pixel-font mb-4 text-[10px] ${tagColor}`}>{tag}</div>
+      <h2 className="pixel-font text-xl leading-relaxed text-cream sm:text-2xl">{title}</h2>
     </Reveal>
   );
 }
 
-/* ── States ───────────────────────────────────────────── */
 function StatesSection() {
   return (
-    <section id="states" className="mx-auto max-w-5xl px-6 py-24">
-      <SectionHead
-        eyebrow="Real-time"
-        title="It shows you what Claude is doing"
-        sub="Every state maps to a real Claude Code event — no guessing, no fake activity."
-      />
+    <section id="states" className="mx-auto max-w-5xl px-6 py-20">
+      <Head tag="▚ REAL-TIME" title="IT SHOWS WHAT CLAUDE IS DOING" />
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {STATES.map((s, idx) => (
-          <Reveal key={s.state} delay={idx * 0.08}>
-            <div className="card-glow glass flex h-full flex-col items-center rounded-2xl p-6 text-center">
+        {STATES.map((s, i) => (
+          <Reveal key={s.state} delay={i * 0.08}>
+            <div className="panel flex h-full flex-col items-center rounded-none p-5 text-center">
               <div className="flex h-24 items-end">
-                <PetSprite pet="clawd" state={s.state} size={92} />
+                <PetSprite pet="clawd" state={s.state} size={88} />
               </div>
-              <div className="mt-3 flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full" style={{ background: s.dot }} />
-                <span className="font-semibold">{s.label}</span>
-              </div>
-              <p className="mt-1 text-sm text-cream/55">{s.sub}</p>
+              <div className="pixel-font mt-4 text-[10px]" style={{ color: s.color }}>{s.label}</div>
+              <p className="mt-2 text-lg leading-tight text-cream/55">{s.sub}</p>
             </div>
           </Reveal>
         ))}
@@ -259,42 +230,60 @@ function StatesSection() {
   );
 }
 
-/* ── Roster ───────────────────────────────────────────── */
+/* Character-select — the arcade centerpiece */
 function RosterSection() {
+  const [sel, setSel] = useState(0);
+  const p = ROSTER[sel];
   return (
-    <section id="pets" className="mx-auto max-w-5xl px-6 py-24">
-      <SectionHead eyebrow="Nine to choose from" title="Pick your pixel sidekick" sub="All original art, animated per state. Or hatch your own from any image." />
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        {ROSTER.map((p, idx) => (
-          <Reveal key={p.id} delay={(idx % 3) * 0.06}>
-            <div className="card-glow glass group flex items-center gap-4 rounded-2xl p-4">
-              <div className="grid h-16 w-16 shrink-0 place-items-end justify-center">
-                <PetSprite pet={p.id} state="idle" size={58} className="transition-transform group-hover:scale-110" />
+    <section id="pets" className="mx-auto max-w-5xl px-6 py-20">
+      <Head tag="▚ NINE FIGHTERS" title="SELECT YOUR PET" tagColor="text-cyan" />
+      <div className="grid gap-6 md:grid-cols-[1fr_320px]">
+        {/* grid */}
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-3">
+          {ROSTER.map((r, i) => (
+            <button
+              key={r.id}
+              onMouseEnter={() => setSel(i)}
+              onClick={() => setSel(i)}
+              className={`panel flex flex-col items-center rounded-none p-3 transition ${
+                sel === i ? "panel-pink -translate-y-1" : "hover:-translate-y-0.5"
+              }`}
+            >
+              <div className="flex h-14 items-end">
+                <PetSprite pet={r.id} state={sel === i ? "work" : "idle"} size={48} />
               </div>
-              <div>
-                <div className="font-bold">{p.name}</div>
-                <div className="text-sm text-cream/55">{p.vibe}</div>
-              </div>
-            </div>
-          </Reveal>
-        ))}
+              <span className="pixel-font mt-2 text-[7px] text-cream/80">{r.name}</span>
+            </button>
+          ))}
+        </div>
+        {/* selected card */}
+        <div className="panel panel-pink flex flex-col items-center justify-center rounded-none p-8 text-center">
+          <div className="animate-floaty">
+            <PetSprite pet={p.id} state="taskDone" size={120} />
+          </div>
+          <div className="pixel-font mt-6 text-sm text-gold">{p.name}</div>
+          <p className="mt-3 text-xl text-cream/70">{p.vibe}</p>
+          <div className="pixel-font mt-5 animate-blink text-[8px] text-pink">▶ READY</div>
+        </div>
       </div>
+      <p className="mt-6 text-center text-lg text-cream/50">
+        All original art · or hatch your own from any image via a{" "}
+        <span className="text-cyan">claude-code-pet://</span> link.
+      </p>
     </section>
   );
 }
 
-/* ── Features ─────────────────────────────────────────── */
 function FeaturesSection() {
   return (
-    <section className="mx-auto max-w-5xl px-6 py-24">
-      <SectionHead eyebrow="Everything it does" title="Small pet. Serious features." />
+    <section className="mx-auto max-w-5xl px-6 py-20">
+      <Head tag="▚ POWER-UPS" title="SMALL PET. SERIOUS FEATURES." tagColor="text-gold" />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {FEATURES.map((f, idx) => (
-          <Reveal key={f.title} delay={(idx % 4) * 0.06}>
-            <div className="card-glow glass h-full rounded-2xl p-5">
-              <div className="text-2xl">{f.icon}</div>
-              <div className="mt-3 font-semibold">{f.title}</div>
-              <p className="mt-1 text-sm text-cream/55">{f.body}</p>
+        {FEATURES.map(([t, b], i) => (
+          <Reveal key={t} delay={(i % 4) * 0.06}>
+            <div className="panel h-full rounded-none p-5">
+              <div className="pixel-font text-[9px] leading-relaxed text-pink">{t}</div>
+              <p className="mt-3 text-lg leading-tight text-cream/60">{b}</p>
             </div>
           </Reveal>
         ))}
@@ -303,13 +292,11 @@ function FeaturesSection() {
   );
 }
 
-/* ── Install ──────────────────────────────────────────── */
 function InstallSection() {
   const [os, setOs] = useState<"mac" | "win">("mac");
   useEffect(() => {
     if (typeof navigator !== "undefined" && /Win/.test(navigator.platform)) setOs("win");
   }, []);
-
   const mac = [
     "git clone https://github.com/ahfoysal/claude-code-pet.git",
     "cd claude-code-pet && npm install && npm run build",
@@ -323,65 +310,68 @@ function InstallSection() {
     "claude-code-pet.exe install-claude-hooks",
   ];
   const cmds = os === "mac" ? mac : win;
-
   return (
-    <section id="install" className="mx-auto max-w-3xl px-6 py-24">
-      <SectionHead eyebrow="Two minutes" title="Bring it home" sub="Requires Rust, Node 18+, and Claude Code. Free forever." />
+    <section id="install" className="mx-auto max-w-3xl px-6 py-20">
+      <Head tag="▚ TWO MINUTES" title="BRING IT HOME" />
       <Reveal>
-        <div className="glass overflow-hidden rounded-2xl">
-          <div className="flex border-b border-white/10">
-            {(["mac", "win"] as const).map((k) => (
-              <button
-                key={k}
-                onClick={() => setOs(k)}
-                className={`flex-1 px-4 py-3 text-sm font-semibold transition ${
-                  os === k ? "bg-white/10 text-cream" : "text-cream/50 hover:text-cream"
-                }`}
-              >
-                {k === "mac" ? "🍎 macOS" : "🪟 Windows"}
-              </button>
-            ))}
+        <div className="panel rounded-none">
+          <div className="flex border-b-[3px] border-night/60">
+            <button
+              onClick={() => setOs("mac")}
+              className={`flex flex-1 items-center justify-center gap-2 py-3 text-lg transition ${
+                os === "mac" ? "bg-pink text-white" : "text-cream/50 hover:text-cream"
+              }`}
+            >
+              <AppleMark size={17} /> macOS
+            </button>
+            <button
+              onClick={() => setOs("win")}
+              className={`flex flex-1 items-center justify-center gap-2 py-3 text-lg transition ${
+                os === "win" ? "bg-cyan text-night" : "text-cream/50 hover:text-cream"
+              }`}
+            >
+              <WindowsMark size={16} /> Windows
+            </button>
           </div>
-          <div className="space-y-1 p-5 font-mono text-[13px] leading-relaxed">
+          <div className="space-y-1.5 p-5 text-lg">
             {cmds.map((c, i) => (
               <div key={i} className="flex gap-3">
-                <span className="select-none text-ember/70">$</span>
+                <span className="select-none text-pink">$</span>
                 <span className="text-cream/90">{c}</span>
               </div>
             ))}
           </div>
         </div>
-        <p className="mt-4 text-center text-sm text-cream/50">
-          Then launch it — it re-opens automatically whenever you start a Claude Code session.
+        <p className="mt-5 text-center text-lg text-cream/55">
+          Then it re-opens automatically whenever you start a Claude Code session.
         </p>
       </Reveal>
     </section>
   );
 }
 
-/* ── Product Hunt CTA ─────────────────────────────────── */
-function LaunchCTA() {
+function CTASection() {
   return (
-    <section className="mx-auto max-w-5xl px-6 py-16">
+    <section className="mx-auto max-w-4xl px-6 py-16">
       <Reveal>
-        <div className="card-glow glass relative overflow-hidden rounded-3xl px-8 py-14 text-center">
-          <div className="mb-6 flex justify-center gap-3">
-            {["quacks", "embyr", "clawd", "owlbert", "sprout"].map((p) => (
-              <div key={p} className="animate-floaty" style={{ animationDelay: `${Math.random()}s` }}>
-                <PetSprite pet={p} state="taskDone" size={54} />
+        <div className="panel panel-pink rounded-none px-8 py-14 text-center">
+          <div className="mb-8 flex justify-center gap-4">
+            {["quacks", "embyr", "clawd", "owlbert", "sprout"].map((p, i) => (
+              <div key={p} className="animate-floaty" style={{ animationDelay: `${i * 0.15}s` }}>
+                <PetSprite pet={p} state="taskDone" size={52} />
               </div>
             ))}
           </div>
-          <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Adopt your pet today</h2>
-          <p className="mx-auto mt-3 max-w-md text-cream/60">
+          <h2 className="pixel-font text-lg leading-relaxed text-cream sm:text-2xl">
+            <span className="neon-gold">PLAYER 1</span> — READY?
+          </h2>
+          <p className="mx-auto mt-5 max-w-md text-xl text-cream/65">
             Free, open source, and endlessly hackable. Give your Claude Code sessions a little life.
           </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <a href="#install" className="rounded-full bg-ember px-6 py-3 font-semibold text-ink shadow-lg shadow-ember/30 transition hover:brightness-110">
-              Get started
-            </a>
-            <a href={GITHUB} target="_blank" className="glass rounded-full px-6 py-3 font-semibold text-cream transition hover:bg-white/10">
-              View source
+          <div className="mt-9 flex flex-wrap justify-center gap-4">
+            <a href="#install" className="btn-arcade rounded-none bg-gold text-night">▶ GET STARTED</a>
+            <a href={GITHUB} target="_blank" className="btn-arcade rounded-none bg-cream text-night">
+              <GithubMark size={16} /> SOURCE
             </a>
           </div>
         </div>
@@ -390,19 +380,20 @@ function LaunchCTA() {
   );
 }
 
-/* ── Footer ───────────────────────────────────────────── */
 function Footer() {
   return (
-    <footer className="border-t border-white/5 px-6 py-10">
-      <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 text-sm text-cream/50 sm:flex-row">
+    <footer className="border-t-[3px] border-night/60 px-6 py-8">
+      <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 text-lg text-cream/50 sm:flex-row">
         <div className="flex items-center gap-2">
-          <PetSprite pet="clawd" state="idle" size={24} />
-          <span>Claude Code Pet</span>
+          <PetSprite pet="clawd" state="idle" size={22} />
+          <span className="pixel-font text-[8px]">CLAUDE CODE PET</span>
         </div>
-        <div className="flex items-center gap-6">
-          <a href={GITHUB} target="_blank" className="hover:text-cream">GitHub</a>
-          <a href={`${GITHUB}/blob/main/LICENSE`} target="_blank" className="hover:text-cream">MIT License</a>
-          <span>© {new Date().getFullYear()} ahfoysal</span>
+        <div className="flex items-center gap-5">
+          <a href={GITHUB} target="_blank" className="flex items-center gap-1.5 hover:text-cream">
+            <GithubMark size={15} /> GitHub
+          </a>
+          <a href={`${GITHUB}/blob/main/LICENSE`} target="_blank" className="hover:text-cream">MIT</a>
+          <span>© 2026 ahfoysal</span>
         </div>
       </div>
     </footer>
