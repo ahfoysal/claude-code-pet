@@ -1,0 +1,28 @@
+{
+  "name": "claude-code-pet",
+  "version": "0.3.1",
+  "description": "A Codex-style desktop pet for Claude Code \u2014 pixel companion that shows live sessions, activity, and alerts",
+  "license": "MIT",
+  "author": "ahfoysal",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ahfoysal/claude-code-pet"
+  },
+  "homepage": "https://github.com/ahfoysal/claude-code-pet",
+  "keywords": [
+    "tauri",
+    "desktop-pet",
+    "coding-agent"
+  ],
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2",
+    "gifenc": "^1.0.3",
+    "playwright": "^1.61.1",
+    "pngjs": "^7.0.0"
+  }
+}

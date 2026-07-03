@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Code Pet</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="pet-container" data-tauri-drag-region>
+    <div id="stage" data-tauri-drag-region>
+
+      <div id="panel" class="hidden">
+        <div id="panel-rows"></div>
+      </div>
+
+      <div id="bubble" class="hidden">
+        <div id="bubble-title">
+          <span id="bubble-project">Claude</span>
+          <span id="bubble-status" class="st-idle"></span>
+        </div>
+        <div id="bubble-reply" style="display:none"></div>
+        <div id="bubble-detail" style="display:none"></div>
+      </div>
+
+      <button id="bubble-toggle" title="Hide" style="display:none">⌄</button>
+
+      <div id="character-area">
+        <span id="emoji" class="anim-float"></span>
+        <div id="pet-badge" class="hidden">1</div>
+        <div id="pet-shadow"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<div align="center">
+
+# 🐾 Claude Code Pet
+
+**A pixel-art desk companion for Claude Code.**
+
+A little pixel creature floats above all your windows — every Space, even fullscreen apps — and reacts to what Claude Code is doing in real time. It shows the active chat, Claude's latest reply, what tool is running, and alerts you the moment Claude needs your input.
+
+<img src="docs/demo.gif" width="440" alt="Claude Code Pet demo — the pet reacts as Claude reads, edits, runs commands, waits for input, and finishes.">
+
+</div>
+
+---
+
+## What it does
+
+<table>
+<tr>
+<td width="50%"><img src="docs/shot-working.png" alt="Working"><br><b>Working</b> — types on its laptop while Claude runs; the bubble shows the chat name, Claude's latest reply, and the exact action (<code>Running · npm test</code>) with a spinner.</td>
+<td width="50%"><img src="docs/shot-waiting.png" alt="Waiting"><br><b>Needs you</b> — a red <code>!</code> pops up, the status blinks, and a chime plays when Claude asks for permission. The alert stays until you respond.</td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/shot-review.png" alt="Ready for review"><br><b>Ready for review</b> — a green ✓ and a soft ding when a turn finishes, with Claude's summary kept in the bubble.</td>
+<td width="50%"><img src="docs/shot-panel.png" alt="Multiple sessions"><br><b>Multiple sessions</b> — a badge counts active chats; click it for a panel listing each one by name, state, and last activity.</td>
+</tr>
+</table>
+
+## Features
+
+- **Floating overlay** — always on top, visible on every macOS Space *and* over fullscreen apps. No Dock icon.
+- **Real-time, real source** — driven by Claude Code hooks and session transcripts, never fake timers. States: idle · thinking · reading · writing · running · searching · browsing · waiting · review · error.
+- **Live status bubble** — active chat name, Claude's latest reply, current action, and a spinner while working.
+- **Needs-input alerts** — visual `!`, blinking status, and an optional chime; the alert persists until you answer.
+- **Session panel** — every open Claude chat with its title, state, and relative time. Auto-opens when two or more are busy.
+- **Click to jump** — click the pet or the bubble to bring the Claude app to the front.
+- **Sound alerts** — subtle WebAudio chimes for needs-input, done, and error. Toggleable, no audio files.
+- **9 built-in pets** + custom pets via deep link. Right-click → Theme to switch.
+- **Follows you** — remembers where you drag it (clamped on-screen), waddles while dragging, hops on hover.
+- **Safe by design** — the event bridge is local-only (`127.0.0.1`), hook payloads are display-only (never executed), and hook install writes a timestamped backup of your settings.
+
+## The pet roster
+
+All original pixel art, animated per state (breathing idle, laptop-typing while working, `!` alerts, Zzz sleep, confetti on review):
+
+| Pet | Vibe |
+|---|---|
+| 🐱 **Clawd** | The original Claude companion |
+| 🦆 **Quacks** | A tidy duck for calm workspace days |
+| 🔥 **Embyr** | Hot-path energy for fast iteration |
+| 🦉 **Owlbert** | Sharp eyes for polished work in a blink |
+| 🪨 **Boulder** | A steady rock when the diff gets large |
+| 🌱 **Sprout** | Small green shoots for new ideas |
+| 📚 **Stax** | A balanced stack for deep work |
+| 💙 **Oops** | A tiny crash-screen gremlin with a soft heart |
+| 👻 **Voidling** | A quiet signal from the void |
+
+<div align="center"><img src="docs/shot-roster.png" width="640" alt="The full pet roster, animated"></div>
+
+Plus a static Claude Bot theme and an emoji theme. All roster art is generated from ASCII grids — see [`tools/gen-pet-pack.mjs`](tools/gen-pet-pack.mjs).
+
+## Install
+
+Requires [Rust](https://rustup.rs), Node 18+, and macOS. (Tauri 2; Windows/Linux build but are less tested.)
+
+```bash
+git clone https://github.com/ahfoysal/claude-code-pet.git
+cd claude-code-pet
+npm install
+npm run build          # produces src-tauri/target/release/bundle/macos/Claude Code Pet.app
+```
+
+Then install the app and connect it to Claude Code:
+
+```bash
+./install.sh                                       # copies the binary + pets to ~/.claude-code-pet
+~/.claude-code-pet/claude-code-pet install-claude-hooks   # registers hooks (backs up settings.json first)
+open "src-tauri/target/release/bundle/macos/Claude Code Pet.app"
+```
+
+Drag `Claude Code Pet.app` to `/Applications` and add it to **System Settings → General → Login Items** to start it at login.
+
+Hooks apply to Claude Code sessions started **after** installation. Remove them any time:
+
+```bash
+~/.claude-code-pet/claude-code-pet uninstall-claude-hooks
+```
+
+## Controls
+
+| Action | Result |
+|---|---|
+| **Click the pet** | Bring the Claude app to the front |
+| **Click the bubble** | Bring the Claude app to the front |
+| **⌄ (hover the pet)** or **double-click** | Tuck the pet away; click it to wake |
+| **Click the count badge** | Open / close the session panel |
+| **Drag** | Move it (position remembered); it waddles while moving |
+| **Hover** | Playful hops |
+| **Right-click** | Theme · Language · Focus Mode · Sound Alerts · Refresh Pets · Reset · Quit |
+
+**Focus Mode** reacts only to completions, errors, and notifications. **Sound Alerts** chime on needs-input (two rising notes), done (soft ding), and error (low buzz).
+
+## Install a pet from a link
+
+Codex-style deep link — `name` required, `imageUrl` required and HTTPS, `description` optional:
+
+```
+claude-code-pet://pets/install?name=Robo&imageUrl=https://example.com/robo.png&description=My%20robot
+```
+
+The image downloads into `~/.claude-code-pet/themes/<slug>/` and the pet switches to it immediately. Try it:
+
+```bash
+open "claude-code-pet://pets/install?name=Robo&imageUrl=https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f916.png"
+```
+
+Custom pets can also be authored by hand under `~/.claude-code-pet/themes/<id>/config.json`:
+
+```json
+{
+  "name": "My Pet",
+  "type": "image",
+  "states": {
+    "idle": { "frames": ["idle-1.png", "idle-2.png"], "fps": 2 },
+    "work": { "src": "work.png" }
+  }
+}
+```
+
+States: `idle, thinking, read, write, bash, search, web, task, subagent, success, taskDone, error, notification, stop, sessionStart, sessionEnd`. Missing states fall back sensibly.
+
+## How it works
+
+```
+Claude Code hooks ──▶ claude-code-pet --hook ──▶ TCP 127.0.0.1:19876 ──▶ pet window
+   (~/.claude/settings.json)   (fast sender)          (local only)        (Tauri overlay)
+```
+
+Three channels feed the pet, all local:
+
+1. **Hooks** (real-time) — `PreToolUse`, `PostToolUse`, `Notification`, `UserPromptSubmit`, `Stop`, etc. drive live state and the exact tool/command.
+2. **Session snapshots** — the Claude app's local session store supplies chat titles (the "Recents" names) and archive state.
+3. **Transcript tail** — `~/.claude/projects/*.jsonl` is followed for Claude's latest reply and for sessions started before hooks existed.
+
+Hooks take priority per session; the others fill in titles and replies. Nothing leaves your machine.
+
+## Verify the event pipeline
+
+A one-file checker (no dependencies) shows a live verdict and every event as it arrives:
+
+```bash
+node tools/event-check/server.mjs      # http://localhost:5600
+```
+
+Preview the whole pet roster animated: serve `src/` and open `sprites.html`.
+
+## License
+
+[MIT](LICENSE) © ahfoysal

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pet roster sprite sheet</title>
+  <style>
+    body { background: #22242c; color: #eee; font: 13px ui-sans-serif, system-ui; padding: 20px; }
+    h1 { font-size: 15px; margin-bottom: 6px; }
+    h2 { font-size: 13px; margin: 22px 0 8px; color: #ffd666; }
+    h2 small { color: #9aa; font-weight: 400; }
+    .sheet { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 1100px; }
+    .cell { background: #2c2f39; border-radius: 10px; padding: 8px; text-align: center; }
+    .cell img { width: 96px; height: 80px; image-rendering: pixelated; }
+    .cell .label { margin-top: 4px; color: #aaa; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <h1>Built-in pet roster — animated preview</h1>
+  <div id="root"></div>
+  <script>
+    const THEMES = ["clawd", "quacks", "embyr", "owlbert", "boulder", "sprout", "stax", "oops", "voidling"];
+    const SHOW_STATES = ["idle", "work", "notification", "taskDone", "stop"];
+    (async () => {
+      const root = document.getElementById("root");
+      for (const id of THEMES) {
+        let config;
+        try {
+          config = await (await fetch(`themes/${id}/config.json`)).json();
+        } catch { continue; }
+        const h = document.createElement("h2");
+        h.innerHTML = `${config.name} <small>— ${config.description || ""}</small>`;
+        root.appendChild(h);
+        const sheet = document.createElement("div");
+        sheet.className = "sheet";
+        for (const state of SHOW_STATES) {
+          const conf = config.states[state];
+          if (!conf) continue;
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          const img = document.createElement("img");
+          const frames = conf.frames || [conf.src];
+          img.src = `themes/${id}/${frames[0]}`;
+          cell.appendChild(img);
+          const label = document.createElement("div");
+          label.className = "label";
+          label.textContent = state;
+          cell.appendChild(label);
+          sheet.appendChild(cell);
+          let i = 0;
+          setInterval(() => {
+            i = (i + 1) % frames.length;
+            img.src = `themes/${id}/${frames[i]}`;
+          }, 1000 / (conf.fps || 2));
+        }
+        root.appendChild(sheet);
+      }
+    })();
+  </script>
+</body>
+</html>

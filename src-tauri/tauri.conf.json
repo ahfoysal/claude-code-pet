@@ -1,0 +1,46 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicedozie4u/tauri-schema/v2/schema.json",
+  "productName": "Claude Code Pet",
+  "version": "0.3.1",
+  "identifier": "com.claudecodepet.app",
+  "build": {
+    "frontendDist": "../src"
+  },
+  "app": {
+    "macOSPrivateApi": true,
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "pet",
+        "title": "Claude Code Pet",
+        "width": 400,
+        "height": 296,
+        "decorations": false,
+        "transparent": true,
+        "shadow": false,
+        "alwaysOnTop": true,
+        "visibleOnAllWorkspaces": true,
+        "skipTaskbar": true,
+        "resizable": false,
+        "focus": false,
+        "x": 900,
+        "y": 500
+      }
+    ]
+  },
+  "bundle": {
+    "resources": {
+      "../src/themes/": "themes/"
+    }
+  },
+  "plugins": {
+    "process": {},
+    "deep-link": {
+      "desktop": {
+        "schemes": [
+          "claude-code-pet"
+        ]
+      }
+    }
+  }
+}
