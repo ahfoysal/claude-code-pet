@@ -1,0 +1,151 @@
+{
+  "name": "Oops",
+  "description": "A tiny crash-screen gremlin with a soft heart.",
+  "type": "image",
+  "states": {
+    "idle": {
+      "frames": [
+        "idle-1.svg",
+        "idle-2.svg"
+      ],
+      "fps": 1.6,
+      "src": "idle-1.svg"
+    },
+    "work": {
+      "frames": [
+        "work-1.svg",
+        "work-2.svg"
+      ],
+      "fps": 3,
+      "src": "work-1.svg"
+    },
+    "success": {
+      "frames": [
+        "success-1.svg",
+        "success-2.svg"
+      ],
+      "fps": 3,
+      "src": "success-1.svg"
+    },
+    "taskDone": {
+      "frames": [
+        "taskDone-1.svg",
+        "taskDone-2.svg"
+      ],
+      "fps": 3,
+      "src": "taskDone-1.svg"
+    },
+    "error": {
+      "frames": [
+        "error-1.svg",
+        "error-2.svg"
+      ],
+      "fps": 2.5,
+      "src": "error-1.svg"
+    },
+    "notification": {
+      "frames": [
+        "notification-1.svg",
+        "notification-2.svg"
+      ],
+      "fps": 3,
+      "src": "notification-1.svg"
+    },
+    "stop": {
+      "frames": [
+        "stop-1.svg",
+        "stop-2.svg"
+      ],
+      "fps": 1.2,
+      "src": "stop-1.svg"
+    },
+    "sessionStart": {
+      "frames": [
+        "sessionStart-1.svg",
+        "sessionStart-2.svg"
+      ],
+      "fps": 3,
+      "src": "sessionStart-1.svg"
+    },
+    "sessionEnd": {
+      "frames": [
+        "sessionEnd-1.svg",
+        "sessionEnd-2.svg"
+      ],
+      "fps": 1.2,
+      "src": "sessionEnd-1.svg"
+    },
+    "read": {
+      "frames": [
+        "work-1.svg",
+        "work-2.svg"
+      ],
+      "fps": 3,
+      "src": "work-1.svg"
+    },
+    "write": {
+      "frames": [
+        "work-1.svg",
+        "work-2.svg"
+      ],
+      "fps": 3,
+      "src": "work-1.svg"
+    },
+    "bash": {
+      "frames": [
+        "work-1.svg",
+        "work-2.svg"
+      ],
+      "fps": 3,
+      "src": "work-1.svg"
+    },
+    "search": {
+      "frames": [
+        "work-1.svg",
+        "work-2.svg"
+      ],
+      "fps": 3,
+      "src": "work-1.svg"
+    },
+    "web": {
+      "frames": [
+        "work-1.svg",
+        "work-2.svg"
+      ],
+      "fps": 3,
+      "src": "work-1.svg"
+    },
+    "task": {
+      "frames": [
+        "work-1.svg",
+        "work-2.svg"
+      ],
+      "fps": 3,
+      "src": "work-1.svg"
+    },
+    "subagent": {
+      "frames": [
+        "work-1.svg",
+        "work-2.svg"
+      ],
+      "fps": 3,
+      "src": "work-1.svg"
+    },
+    "thinking": {
+      "frames": [
+        "work-1.svg",
+        "work-2.svg"
+      ],
+      "fps": 3,
+      "src": "work-1.svg"
+    },
+    "unknown": {
+      "frames": [
+        "work-1.svg",
+        "work-2.svg"
+      ],
+      "fps": 3,
+      "src": "work-1.svg"
+    }
+  }
+}

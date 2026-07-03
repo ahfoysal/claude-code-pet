@@ -20,12 +20,46 @@ pub fn run_hook_sender() {
 
     write_event_log(&payload);
 
-    // Send to pet widget
-    if let Ok(mut stream) = TcpStream::connect_timeout(
+    // Send to the running pet widget.
+    match TcpStream::connect_timeout(
         &format!("{HOST}:{PORT}").parse().unwrap(),
         Duration::from_secs(1),
     ) {
-        let _ = stream.write_all(&buf);
+        Ok(mut stream) => {
+            let _ = stream.write_all(&buf);
+        }
+        Err(_) => {
+            // Pet isn't running — auto-launch it when a Claude session begins,
+            // so it opens alongside Claude. Single-instance guards duplicates.
+            let event = payload
+                .get("hook_event_name")
+                .and_then(|v| v.as_str())
+                .unwrap_or("");
+            if matches!(event, "SessionStart" | "UserPromptSubmit") {
+                launch_pet();
+            }
+        }
+    }
+}
+
+/// Spawn the pet GUI (this same binary, no args) detached from the hook process.
+fn launch_pet() {
+    let Ok(exe) = std::env::current_exe() else {
+        return;
+    };
+    #[cfg(target_os = "macos")]
+    {
+        // Prefer the installed .app so it launches as a proper GUI app.
+        let app = "/Applications/Claude Code Pet.app";
+        if std::path::Path::new(app).exists() {
+            let _ = std::process::Command::new("open").arg(app).spawn();
+            return;
+        }
+        let _ = std::process::Command::new(exe).spawn();
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        let _ = std::process::Command::new(exe).spawn();
     }
 }
 

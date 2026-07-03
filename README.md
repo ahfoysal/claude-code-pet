@@ -2,9 +2,9 @@
 
 # 🐾 Claude Code Pet
 
-**A pixel-art desk companion for Claude Code.**
+**A pixel-art desk companion for Claude Code — for macOS & Windows.**
 
-A little pixel creature floats above all your windows — every Space, even fullscreen apps — and reacts to what Claude Code is doing in real time. It shows the active chat, Claude's latest reply, what tool is running, and alerts you the moment Claude needs your input.
+A little pixel creature floats above all your windows and reacts to what Claude Code is doing in real time. It shows the active chat, Claude's latest reply, what tool is running, and alerts you the moment Claude needs your input.
 
 <img src="docs/demo.gif" width="440" alt="Claude Code Pet demo — the pet reacts as Claude reads, edits, runs commands, waits for input, and finishes.">
 
@@ -13,6 +13,13 @@ A little pixel creature floats above all your windows — every Space, even full
 <img src="docs/shot-hero.png" width="150" alt="The pet typing away on its laptop while Claude works.">
 
 *Heads-down and typing while Claude works.*
+
+<br>
+
+![macOS](https://img.shields.io/badge/macOS-supported-000?logo=apple) &nbsp;
+![Windows](https://img.shields.io/badge/Windows-supported-0078D6?logo=windows) &nbsp;
+![License](https://img.shields.io/badge/license-MIT-4cc38a) &nbsp;
+[![GitHub](https://img.shields.io/badge/source-github-fff?logo=github)](https://github.com/ahfoysal/claude-code-pet)
 
 </div>
 
@@ -66,29 +73,48 @@ Plus a static Claude Bot theme and an emoji theme. All roster art is generated f
 
 ## Install
 
-Requires [Rust](https://rustup.rs), Node 18+, and macOS. (Tauri 2; Windows/Linux build but are less tested.)
+Works on **macOS** and **Windows**. Requires [Rust](https://rustup.rs), Node 18+, and [Claude Code](https://claude.com/claude-code).
+
+Build from source (same first step everywhere):
 
 ```bash
 git clone https://github.com/ahfoysal/claude-code-pet.git
 cd claude-code-pet
 npm install
-npm run build          # produces src-tauri/target/release/bundle/macos/Claude Code Pet.app
+npm run build
 ```
 
-Then install the app and connect it to Claude Code:
+### 🍎 macOS
 
 ```bash
-./install.sh                                       # copies the binary + pets to ~/.claude-code-pet
+./install.sh                                              # copies binary + pets to ~/.claude-code-pet
 ~/.claude-code-pet/claude-code-pet install-claude-hooks   # registers hooks (backs up settings.json first)
 open "src-tauri/target/release/bundle/macos/Claude Code Pet.app"
 ```
 
-Drag `Claude Code Pet.app` to `/Applications` and add it to **System Settings → General → Login Items** to start it at login.
+Drag `Claude Code Pet.app` to `/Applications`. Optionally add it to **System Settings → General → Login Items** to always have it ready.
 
-Hooks apply to Claude Code sessions started **after** installation. Remove them any time:
+### 🪟 Windows
+
+```powershell
+.\install.ps1                                             # copies binary + pets to %LOCALAPPDATA%\claude-code-pet
+& "$env:LOCALAPPDATA\claude-code-pet\claude-code-pet.exe" install-claude-hooks
+& "$env:LOCALAPPDATA\claude-code-pet\claude-code-pet.exe"
+```
+
+To start it with Windows, drop a shortcut to `claude-code-pet.exe` in your Startup folder (`shell:startup`).
+
+### Opens with Claude
+
+Once hooks are installed, the pet **auto-launches whenever you start a Claude Code session** — you don't have to open it manually. Single-instance protection means it never opens twice.
+
+Hooks apply to sessions started **after** installation. Remove them any time:
 
 ```bash
+# macOS
 ~/.claude-code-pet/claude-code-pet uninstall-claude-hooks
+# Windows
+& "$env:LOCALAPPDATA\claude-code-pet\claude-code-pet.exe" uninstall-claude-hooks
 ```
 
 ## Controls
@@ -158,6 +184,12 @@ node tools/event-check/server.mjs      # http://localhost:5600
 ```
 
 Preview the whole pet roster animated: serve `src/` and open `sprites.html`.
+
+## Landing page
+
+A Next.js marketing site lives in [`landing/`](landing) — animated with the real pet sprites. Deploy your own to Vercel in one click (set **Root Directory** to `landing`):
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/ahfoysal/claude-code-pet&root-directory=landing&project-name=claude-code-pet&repository-name=claude-code-pet)
 
 ## License
 

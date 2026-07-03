@@ -64,6 +64,15 @@ fn main() {
 
     // Normal mode: run the GUI app
     tauri::Builder::default()
+        // Single-instance must be registered first — a second launch (e.g. from
+        // the auto-open hook) just focuses the existing pet instead of opening
+        // another window.
+        .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
+            use tauri::Manager;
+            if let Some(win) = app.get_webview_window("pet") {
+                let _ = win.show();
+            }
+        }))
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_deep_link::init())
         .manage(HitRegions::default())

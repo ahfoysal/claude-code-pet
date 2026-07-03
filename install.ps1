@@ -20,6 +20,14 @@ if (!(Test-Path $InstallDir)) {
 $ExePath = Join-Path $InstallDir 'claude-code-pet.exe'
 Copy-Item -Path $SourceBin -Destination $ExePath -Force
 
+# Built-in pets live next to the binary (see themes.rs lookup order).
+if (Test-Path 'src\themes') {
+    $ThemesDest = Join-Path $InstallDir 'themes'
+    if (Test-Path $ThemesDest) { Remove-Item -Recurse -Force $ThemesDest }
+    Copy-Item -Path 'src\themes' -Destination $ThemesDest -Recurse -Force
+    Write-Info "Installed built-in pets to $ThemesDest"
+}
+
 Write-Info "Installed to $ExePath"
 Write-Info ''
 Write-Info 'Run the app:'
