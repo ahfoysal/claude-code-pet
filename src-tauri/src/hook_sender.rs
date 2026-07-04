@@ -64,6 +64,12 @@ fn launch_pet() {
 }
 
 fn write_event_log(payload: &serde_json::Value) {
+    // Off by default — hook payloads can include prompts and file paths.
+    // Opt in with CLAUDE_CODE_PET_LOG=1 (e.g. to use the event checker).
+    if std::env::var("CLAUDE_CODE_PET_LOG").as_deref() != Ok("1") {
+        return;
+    }
+
     let Some(home) = dirs::home_dir() else {
         return;
     };

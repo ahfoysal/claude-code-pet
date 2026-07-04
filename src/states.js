@@ -46,10 +46,7 @@ export const SPRITE_FALLBACK = {
   success: "taskDone",
 };
 
-// How long states linger before the session returns to idle (ms).
-// Codex bundle behavior: review/waiting stay long, failed ~1h, running ~3min.
-export const LINGER = { done: 30 * 60 * 1000, error: 60 * 60 * 1000, hello: 2500 };
-// A "working" session with no events for this long is considered stalled → idle.
+// A stalled "working" session (no events this long) drops from the panel.
 export const WORKING_STALL_MS = 3 * 60 * 1000;
 // Idle sessions drop off the list after this (keeps the panel to what's live).
 export const IDLE_EXPIRE_MS = 2 * 60 * 1000;

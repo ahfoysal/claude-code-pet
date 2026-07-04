@@ -30,22 +30,6 @@ fn main() {
         return;
     }
 
-    if std::env::args().any(|a| a == "install-hooks") {
-        if let Err(e) = hook_setup::install_hooks() {
-            eprintln!("[pet] Failed to install hooks: {e}");
-            std::process::exit(1);
-        }
-        return;
-    }
-
-    if std::env::args().any(|a| a == "uninstall-hooks") {
-        if let Err(e) = hook_setup::uninstall_hooks() {
-            eprintln!("[pet] Failed to uninstall hooks: {e}");
-            std::process::exit(1);
-        }
-        return;
-    }
-
     if std::env::args().any(|a| a == "install-claude-hooks") {
         if let Err(e) = hook_setup::install_claude_hooks() {
             eprintln!("[pet] Failed to install Claude hooks: {e}");
@@ -220,7 +204,8 @@ fn handle_pet_install_url(app: &tauri::AppHandle, raw: &str) {
                 .and_then(|e| e.to_str())
                 .map(|e| e.to_lowercase())
         })
-        .filter(|e| ["png", "gif", "webp", "jpg", "jpeg", "svg"].contains(&e.as_str()))
+        // Raster only for downloaded pets — no untrusted remote SVG.
+        .filter(|e| ["png", "gif", "webp", "jpg", "jpeg"].contains(&e.as_str()))
         .unwrap_or_else(|| "png".to_string());
     let file = format!("pet.{ext}");
     let out = dir.join(&file);
@@ -235,6 +220,9 @@ fn handle_pet_install_url(app: &tauri::AppHandle, raw: &str) {
                 "--max-filesize",
                 "8000000",
                 "--proto",
+                "=https",
+                // Never let a redirect downgrade off HTTPS.
+                "--proto-redir",
                 "=https",
                 "-o",
                 out.to_string_lossy().as_ref(),

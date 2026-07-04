@@ -28,7 +28,7 @@ const STATES = [
 
 const FEATURES = [
   ["ALWAYS ON TOP", "Floats over every window, Space, and fullscreen app."],
-  ["REAL EVENTS", "Driven by Claude Code hooks & transcripts. No fake timers."],
+  ["REAL EVENTS", "Driven by real Claude Code hooks & transcripts — not simulated activity."],
   ["LIVE BUBBLE", "Chat name, Claude's latest reply, and the tool running now."],
   ["INPUT ALERTS", "A red ! and a chime the moment Claude waits for you."],
   ["ALL SESSIONS", "A badge counts active chats; a panel lists each one."],

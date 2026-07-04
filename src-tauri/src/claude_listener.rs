@@ -238,17 +238,14 @@ fn payload_from_last_jsonl_line(path: &Path) -> Option<Value> {
     }))
 }
 
-/// Total tokens for the latest assistant turn (context + generated), from the
-/// transcript's `message.usage`. Mirrors Claude Code's token status readout.
+/// Tokens generated in the latest assistant message, from the transcript's
+/// `message.usage.output_tokens` — matches Claude Code's "232 tokens" readout.
 fn infer_tokens(json: &Value) -> u64 {
-    let Some(usage) = json.get("message").and_then(|m| m.get("usage")) else {
-        return 0;
-    };
-    let get = |k: &str| usage.get(k).and_then(Value::as_u64).unwrap_or(0);
-    get("input_tokens")
-        + get("output_tokens")
-        + get("cache_read_input_tokens")
-        + get("cache_creation_input_tokens")
+    json.get("message")
+        .and_then(|m| m.get("usage"))
+        .and_then(|u| u.get("output_tokens"))
+        .and_then(Value::as_u64)
+        .unwrap_or(0)
 }
 
 fn infer_event(json: &Value) -> &'static str {

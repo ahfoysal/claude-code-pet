@@ -30,8 +30,10 @@ pub async fn socket_server(app: tauri::AppHandle) {
 
         let app_handle = app.clone();
         tokio::spawn(async move {
+            // Cap the read — a hook payload is tiny; anything larger is junk or
+            // a local process trying to exhaust memory.
             let mut buf = Vec::with_capacity(4096);
-            if let Err(e) = stream.read_to_end(&mut buf).await {
+            if let Err(e) = (&mut stream).take(256 * 1024).read_to_end(&mut buf).await {
                 eprintln!("[pet] Read error: {e}");
                 return;
             }

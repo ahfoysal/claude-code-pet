@@ -2,17 +2,6 @@ use std::fs;
 use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-const CODEX_HOOK_EVENTS: &[&str] = &[
-    "PreToolUse",
-    "PostToolUse",
-    "PermissionRequest",
-    "SessionStart",
-    "SubagentStart",
-    "SubagentStop",
-    "UserPromptSubmit",
-    "Stop",
-];
-
 const CLAUDE_HOOK_EVENTS: &[&str] = &[
     "PreToolUse",
     "PostToolUse",
@@ -28,17 +17,6 @@ const CLAUDE_HOOK_EVENTS: &[&str] = &[
 
 const APP_MARKER: &str = "claude-code-pet";
 
-pub fn install_hooks() -> Result<(), String> {
-    let settings_path = codex_hooks_path()?;
-    let command = current_hook_command()?;
-    register_hooks(&settings_path, &command, CODEX_HOOK_EVENTS)
-}
-
-pub fn uninstall_hooks() -> Result<(), String> {
-    let settings_path = codex_hooks_path()?;
-    unregister_hooks(&settings_path, CODEX_HOOK_EVENTS, "Codex")
-}
-
 pub fn install_claude_hooks() -> Result<(), String> {
     let settings_path = claude_settings_path()?;
     let command = current_hook_command()?;
@@ -48,11 +26,6 @@ pub fn install_claude_hooks() -> Result<(), String> {
 pub fn uninstall_claude_hooks() -> Result<(), String> {
     let settings_path = claude_settings_path()?;
     unregister_hooks(&settings_path, CLAUDE_HOOK_EVENTS, "Claude")
-}
-
-fn codex_hooks_path() -> Result<PathBuf, String> {
-    let home = dirs::home_dir().ok_or("could not determine home directory")?;
-    Ok(home.join(".codex").join("hooks.json"))
 }
 
 fn claude_settings_path() -> Result<PathBuf, String> {

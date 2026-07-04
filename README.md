@@ -173,11 +173,23 @@ Three channels feed the pet, all local:
 2. **Session snapshots** — the Claude app's local session store supplies chat titles (the "Recents" names) and archive state.
 3. **Transcript tail** — `~/.claude/projects/*.jsonl` is followed for Claude's latest reply and for sessions started before hooks existed.
 
-Hooks take priority per session; the others fill in titles and replies. Nothing leaves your machine.
+Hooks take priority per session; the others fill in titles and replies. Nothing leaves your machine, and hook payloads are display data only — never executed.
+
+The state model is real events with lightweight timeout cleanup (a stalled turn settles back to idle, finished/errored states linger briefly) — not simulated activity.
+
+## Privacy
+
+By default the pet keeps **no log** of hook payloads. If you want the event checker (below) or a debug trail, opt in per shell:
+
+```bash
+export CLAUDE_CODE_PET_LOG=1   # writes events to ~/.claude-code-pet/events.jsonl
+```
+
+Only enable this if you're comfortable with prompts and tool metadata being written to that local file.
 
 ## Verify the event pipeline
 
-A one-file checker (no dependencies) shows a live verdict and every event as it arrives:
+With `CLAUDE_CODE_PET_LOG=1` set, a one-file checker (no dependencies) shows a live verdict and every event as it arrives:
 
 ```bash
 node tools/event-check/server.mjs      # http://localhost:5600

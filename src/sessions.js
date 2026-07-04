@@ -1,6 +1,6 @@
 import {
   STATE_IDLE, STATE_SLEEP, STATE_WAITING, STATE_DONE, STATE_ERROR,
-  KIND_PRIORITY, LINGER, WORKING_STALL_MS, IDLE_EXPIRE_MS, SESSION_EXPIRE_MS, SLEEP_AFTER_MS,
+  KIND_PRIORITY, WORKING_STALL_MS, IDLE_EXPIRE_MS, SESSION_EXPIRE_MS, SLEEP_AFTER_MS,
   stateForEvent, detailForEvent, projectForEvent,
 } from "./states.js";
 import { getCharacterForState, getCurrentThemeName } from "./themes.js";
@@ -60,6 +60,7 @@ function getOrCreateSession(sessionId) {
       reply: "",
       tokens: 0,
       tasks: 0,
+      turnStart: 0,
       state: STATE_IDLE,
       detail: "",
       lastSeen: Date.now(),
@@ -104,26 +105,23 @@ function absorbSnapshot(event) {
   refreshDisplay();
 }
 
+// How long a session stays in the panel after its LAST real event, by state.
+// This is housekeeping keyed on real activity — not a state-faking timer.
+function quietLimit(kind) {
+  if (kind === "waiting" || kind === "error") return SESSION_EXPIRE_MS; // needs you → linger
+  if (kind === "working") return WORKING_STALL_MS;                      // long generations
+  return IDLE_EXPIRE_MS;                                                // finished / idle
+}
+
 export function cleanupSessions() {
   const now = Date.now();
-  let changed = false;
   for (const [id, s] of Object.entries(sessions)) {
-    if (s.state.kind === "idle" && now - s.lastSeen > IDLE_EXPIRE_MS) {
-      // Idle sessions drop off after 2 minutes.
+    if (now - s.lastSeen > quietLimit(s.state.kind)) {
       delete sessions[id];
-      changed = true;
-    } else if (now - s.lastSeen > SESSION_EXPIRE_MS) {
-      delete sessions[id];
-      changed = true;
-    } else if (s.state.kind === "working" && now - s.lastSeen > WORKING_STALL_MS) {
-      s.state = STATE_IDLE;
-      s.detail = "";
-      changed = true;
     }
   }
-  // Always refresh: relative times + sleep transition depend on the clock.
+  // Refresh: relative times + the sleep transition read the clock.
   refreshDisplay();
-  return changed;
 }
 
 // ── Event Processing ─────────────────────────────────
@@ -202,6 +200,16 @@ export function handleEvent(event) {
   if (hookEvent === "SubagentStart") session.tasks = (session.tasks || 0) + 1;
   else if (hookEvent === "SubagentStop") session.tasks = Math.max(0, (session.tasks || 0) - 1);
   else if (hookEvent === "Stop" || hookEvent === "SessionEnd") session.tasks = 0;
+
+  // Turn timer: starts when a prompt begins, freezes when the turn ends.
+  if (hookEvent === "UserPromptSubmit") {
+    session.turnStart = Date.now();
+    session.tokens = 0;
+  } else if (kindNow === "working" && !session.turnStart) {
+    session.turnStart = Date.now();
+  } else if (kindNow === "done" || kindNow === "idle") {
+    session.turnStart = 0;
+  }
   session.lastSeen = Date.now();
 
   // Sound alerts on meaningful transitions.
@@ -212,30 +220,20 @@ export function handleEvent(event) {
     else if (kind === "error") playChime("error");
   }
 
-  // Transient states linger, then the session settles back to idle.
+  // Fully event-driven: a session holds its last real state (working /
+  // waiting / review / error) until the next event changes it — no timer
+  // ever flips the state. The only scheduled action is clearing a session a
+  // few seconds after it actually ends, so the goodbye is visible.
   if (transientTimers[sessionId]) {
     clearTimeout(transientTimers[sessionId]);
     delete transientTimers[sessionId];
   }
-  const lingerMs =
-    hookEvent === "SessionStart" ? LINGER.hello :
-    kind === "done" ? LINGER.done :
-    kind === "error" ? LINGER.error :
-    hookEvent === "SessionEnd" ? LINGER.done :
-    0;
-  if (lingerMs) {
+  if (hookEvent === "SessionEnd") {
     transientTimers[sessionId] = setTimeout(() => {
       delete transientTimers[sessionId];
-      const s = sessions[sessionId];
-      if (!s) return;
-      if (hookEvent === "SessionEnd") {
-        delete sessions[sessionId];
-      } else if (Date.now() - s.lastSeen >= lingerMs - 50) {
-        s.state = STATE_IDLE;
-        s.detail = "";
-      }
+      delete sessions[sessionId];
       refreshDisplay();
-    }, lingerMs);
+    }, 3000);
   }
 
   refreshDisplay();
@@ -334,6 +332,16 @@ setInterval(() => {
   }
 }, 120);
 
+// Turn-timer ticker — keeps the "1m 41s" elapsed time counting up live while
+// any session is actively working. Cheap, and only refreshes when needed.
+setInterval(() => {
+  if (tucked) return;
+  const ticking = Object.values(sessions).some(
+    (s) => s.turnStart > 0 && s.state.kind === "working"
+  );
+  if (ticking) refreshDisplay();
+}, 1000);
+
 function relTime(ts) {
   const d = Math.max(0, Date.now() - ts);
   if (d < 60000) return "now";
@@ -353,11 +361,22 @@ function fmtTokens(n) {
   return String(n);
 }
 
-// "2 running tasks · 12.4k tokens" — mirrors Claude Code's status line.
+function fmtElapsed(ms) {
+  const s = Math.floor(ms / 1000);
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ${s % 60}s`;
+  return `${Math.floor(m / 60)}h ${m % 60}m`;
+}
+
+// "1m 41s · 232 tokens · 1 running task" — matches Claude Code's status line.
 function metaText(s) {
   const parts = [];
-  if (s.tasks > 0) parts.push(`${s.tasks} running task${s.tasks > 1 ? "s" : ""}`);
+  if (s.turnStart > 0 && s.state.kind === "working") {
+    parts.push(fmtElapsed(Date.now() - s.turnStart));
+  }
   if (s.tokens > 0) parts.push(`${fmtTokens(s.tokens)} tokens`);
+  if (s.tasks > 0) parts.push(`${s.tasks} running task${s.tasks > 1 ? "s" : ""}`);
   return parts.join(" · ");
 }
 
