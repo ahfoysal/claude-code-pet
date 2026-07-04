@@ -153,7 +153,15 @@ export function handleEvent(event) {
       existing.tokens = event.tokens;
       touched = true;
     }
-    if (touched) refreshDisplay();
+    // Transcript growth means the turn is still alive — keep it fresh so the
+    // meta (time · tokens) keeps ticking and the session isn't cleaned up.
+    if (touched) {
+      existing.lastSeen = Date.now();
+      if (!existing.turnStart && existing.state.kind === "working") {
+        existing.turnStart = Date.now();
+      }
+      refreshDisplay();
+    }
     return;
   }
 

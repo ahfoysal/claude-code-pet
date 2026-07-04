@@ -197,18 +197,21 @@ fn scan_project_logs(app: &tauri::AppHandle, seen: &mut HashMap<PathBuf, FileSta
 fn payload_from_last_jsonl_line(path: &Path) -> Option<Value> {
     let file = fs::File::open(path).ok()?;
     let len = file.metadata().ok()?.len();
-    let start = len.saturating_sub(16 * 1024);
+    // Read a generous tail so we can sum the whole current turn's tokens.
+    let start = len.saturating_sub(96 * 1024);
     let mut reader = BufReader::new(file);
     reader.seek(SeekFrom::Start(start)).ok()?;
 
-    let mut last = None;
-    for line in reader.lines().map_while(Result::ok) {
-        if !line.trim().is_empty() {
-            last = Some(line);
-        }
-    }
+    // Keep every whole line in the tail; the last one drives the event, and
+    // the assistant records after the last user message give the turn tokens.
+    let lines: Vec<String> = reader
+        .lines()
+        .map_while(Result::ok)
+        .filter(|l| !l.trim().is_empty())
+        .collect();
+    let last = lines.last()?;
 
-    let json = serde_json::from_str::<Value>(&last?).ok()?;
+    let json = serde_json::from_str::<Value>(last).ok()?;
     let event = infer_event(&json);
     let tool_name = infer_tool_name(&json).unwrap_or_default();
     let cwd = json.get("cwd").and_then(Value::as_str).unwrap_or("");
@@ -223,7 +226,7 @@ fn payload_from_last_jsonl_line(path: &Path) -> Option<Value> {
     } else {
         String::new()
     };
-    let tokens = infer_tokens(&json);
+    let tokens = turn_output_tokens(&lines);
 
     Some(serde_json::json!({
         "source": "claude-project-log-listener",
@@ -238,8 +241,48 @@ fn payload_from_last_jsonl_line(path: &Path) -> Option<Value> {
     }))
 }
 
-/// Tokens generated in the latest assistant message, from the transcript's
-/// `message.usage.output_tokens` — matches Claude Code's "232 tokens" readout.
+/// Cumulative output tokens generated in the current turn — sum of every
+/// assistant record's `usage.output_tokens` since the last user message.
+/// Matches Claude Code's growing "1.0k tokens" status readout.
+fn turn_output_tokens(lines: &[String]) -> u64 {
+    // Find the last real user prompt = start of the turn. Tool results also
+    // have role "user", so skip those — they're mid-turn, not a new turn.
+    let mut turn_start = 0usize;
+    for (i, line) in lines.iter().enumerate() {
+        let Ok(j) = serde_json::from_str::<Value>(line) else {
+            continue;
+        };
+        let role = j
+            .get("message")
+            .and_then(|m| m.get("role"))
+            .and_then(Value::as_str)
+            .unwrap_or("");
+        if role != "user" {
+            continue;
+        }
+        let is_tool_result = j
+            .get("message")
+            .and_then(|m| m.get("content"))
+            .and_then(Value::as_array)
+            .map(|items| {
+                items
+                    .iter()
+                    .any(|it| it.get("type").and_then(Value::as_str) == Some("tool_result"))
+            })
+            .unwrap_or(false);
+        if !is_tool_result {
+            turn_start = i;
+        }
+    }
+    lines[turn_start..]
+        .iter()
+        .filter_map(|line| serde_json::from_str::<Value>(line).ok())
+        .filter(|j| j.get("type").and_then(Value::as_str) == Some("assistant"))
+        .map(|j| infer_tokens(&j))
+        .sum()
+}
+
+/// Output tokens in a single assistant record's `message.usage`.
 fn infer_tokens(json: &Value) -> u64 {
     json.get("message")
         .and_then(|m| m.get("usage"))
