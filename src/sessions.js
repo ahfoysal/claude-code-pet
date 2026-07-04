@@ -252,6 +252,9 @@ function sortedSessions() {
   const now = Date.now();
   return Object.values(sessions)
     .filter(s => now - s.lastSeen <= SESSION_EXPIRE_MS)
+    // Only show a session once it has a real chat name — an untitled brand-new
+    // chat stays hidden until Claude names it (no folder/username fallback).
+    .filter(s => s.title && s.title.trim())
     .sort((a, b) =>
       (KIND_PRIORITY[b.state.kind] - KIND_PRIORITY[a.state.kind]) || (b.lastSeen - a.lastSeen)
     );
