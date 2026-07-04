@@ -61,6 +61,7 @@ function getOrCreateSession(sessionId) {
       tokens: 0,
       tasks: 0,
       turnStart: 0,
+      doneAt: 0,
       state: STATE_IDLE,
       detail: "",
       lastSeen: Date.now(),
@@ -222,6 +223,7 @@ export function handleEvent(event) {
 
   // Sound alerts on meaningful transitions.
   const kind = session.state.kind;
+  if (kind === "done" && prevKind !== "done") session.doneAt = Date.now();
   if (kind !== prevKind) {
     if (kind === "waiting") playChime("waiting");
     else if (kind === "done") playChime("done");
@@ -248,6 +250,17 @@ export function handleEvent(event) {
 }
 
 // ── Aggregation ──────────────────────────────────────
+const DONE_CELEBRATE_MS = 5000;
+
+// A finished session celebrates (outranks working) for 5s, then drops below
+// working so a still-running session takes over the pet.
+function effectivePriority(s) {
+  if (s.state.kind === "done") {
+    return Date.now() - (s.doneAt || 0) < DONE_CELEBRATE_MS ? 3.5 : 0.5;
+  }
+  return KIND_PRIORITY[s.state.kind];
+}
+
 function sortedSessions() {
   const now = Date.now();
   return Object.values(sessions)
@@ -255,21 +268,30 @@ function sortedSessions() {
     // Only show a session once it has a real chat name — an untitled brand-new
     // chat stays hidden until Claude names it (no folder/username fallback).
     .filter(s => s.title && s.title.trim())
-    .sort((a, b) =>
-      (KIND_PRIORITY[b.state.kind] - KIND_PRIORITY[a.state.kind]) || (b.lastSeen - a.lastSeen)
-    );
+    .sort((a, b) => (effectivePriority(b) - effectivePriority(a)) || (b.lastSeen - a.lastSeen));
 }
 
 function aggregate() {
   const list = sortedSessions();
   const nonIdle = list.filter(s => s.state.kind !== "idle");
   const top = list[0] || null;
+
+  // The pet reflects the top session only while it's actively demanding
+  // attention: working, waiting, error, or a still-celebrating done (<5s).
+  // Otherwise (everything finished or idle) the pet rests.
+  const topActive = top && (
+    top.state.kind === "working" ||
+    top.state.kind === "waiting" ||
+    top.state.kind === "error" ||
+    (top.state.kind === "done" && Date.now() - (top.doneAt || 0) < DONE_CELEBRATE_MS)
+  );
+
   let petState;
-  if (!top || top.state.kind === "idle") {
+  if (topActive) {
+    petState = top.state;
+  } else {
     const newest = list.reduce((m, s) => Math.max(m, s.lastSeen), 0);
     petState = (!list.length || Date.now() - newest > SLEEP_AFTER_MS) ? STATE_SLEEP : STATE_IDLE;
-  } else {
-    petState = top.state;
   }
   return { list, nonIdle, top, petState };
 }
@@ -343,12 +365,15 @@ setInterval(() => {
   }
 }, 120);
 
-// Turn-timer ticker — keeps the "1m 41s" elapsed time counting up live while
-// any session is actively working. Cheap, and only refreshes when needed.
+// Live ticker — keeps the "1m 41s" elapsed time counting up while a session
+// works, and lets the pet re-evaluate when a done celebration (5s) ends.
 setInterval(() => {
   if (tucked) return;
+  const now = Date.now();
   const ticking = Object.values(sessions).some(
-    (s) => s.turnStart > 0 && s.state.kind === "working"
+    (s) =>
+      (s.turnStart > 0 && s.state.kind === "working") ||
+      (s.state.kind === "done" && now - (s.doneAt || 0) < DONE_CELEBRATE_MS + 1000)
   );
   if (ticking) refreshDisplay();
 }, 1000);
