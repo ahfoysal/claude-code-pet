@@ -47,6 +47,21 @@ async function clampToMonitors(win, x, y) {
   };
 }
 
+// Flip the pet/bubble to the LEFT of the window (content extends right) when
+// the window sits in the left part of the screen — so the bubble never renders
+// off the left edge.
+async function updateAnchor(win) {
+  try {
+    const { currentMonitor } = window.__TAURI__.window;
+    const pos = await win.outerPosition();
+    const mon = await currentMonitor();
+    if (!mon) return;
+    const relLeft = pos.x - mon.position.x;
+    const anchorLeft = relLeft < mon.size.width * 0.3;
+    document.body.classList.toggle("anchor-left", anchorLeft);
+  } catch { /* ignore */ }
+}
+
 async function initPosition() {
   try {
     const { getCurrentWindow, currentMonitor, PhysicalPosition } = window.__TAURI__.window;
@@ -66,6 +81,7 @@ async function initPosition() {
         await win.setPosition(new PhysicalPosition(x, y));
       }
     }
+    await updateAnchor(win);
 
     let saveTimer = null;
     let walkTimer = null;
@@ -76,8 +92,14 @@ async function initPosition() {
       walkTimer = setTimeout(() => document.body.classList.remove("is-dragging"), 260);
 
       clearTimeout(saveTimer);
-      saveTimer = setTimeout(() => {
-        localStorage.setItem("claude-code-pet-pos", JSON.stringify({ x: payload.x, y: payload.y }));
+      saveTimer = setTimeout(async () => {
+        // Drag settled: snap fully on-screen and choose the anchor side.
+        const safe = await clampToMonitors(win, payload.x, payload.y);
+        if (safe.x !== payload.x || safe.y !== payload.y) {
+          await win.setPosition(new PhysicalPosition(safe.x, safe.y));
+        }
+        await updateAnchor(win);
+        localStorage.setItem("claude-code-pet-pos", JSON.stringify({ x: safe.x, y: safe.y }));
       }, 300);
     });
   } catch { /* browser preview mode */ }

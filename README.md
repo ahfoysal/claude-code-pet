@@ -69,7 +69,7 @@ All original pixel art, animated per state (breathing idle, laptop-typing while 
 
 <div align="center"><img src="docs/shot-roster.png" width="640" alt="The full pet roster, animated"></div>
 
-Plus a static Claude Bot theme and an emoji theme. All roster art is generated from ASCII grids — see [`tools/gen-pet-pack.mjs`](tools/gen-pet-pack.mjs).
+All roster art is generated from ASCII grids — see [`tools/gen-pet-pack.mjs`](tools/gen-pet-pack.mjs). Right-click the pet and pick a theme to switch.
 
 ## Install
 

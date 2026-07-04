@@ -11,7 +11,9 @@ let imageCache = {};
 let loadedFontFace = null;
 let browserMode = false; // running outside Tauri (plain browser preview)
 
-const BUILTIN_THEME_IDS = ["clawd", "codex", "default", "cat"];
+const BUILTIN_THEME_IDS = [
+  "clawd", "quacks", "embyr", "owlbert", "boulder", "sprout", "stax", "oops", "voidling",
+];
 
 export async function initThemes() {
   try {
@@ -44,11 +46,7 @@ export async function initThemes() {
   if (found) {
     await setTheme(found.id);
   } else {
-    const def =
-      themes.find(t => t.id === "clawd") ||
-      themes.find(t => t.id === "codex") ||
-      themes.find(t => t.id === "default") ||
-      themes[0] || null;
+    const def = themes.find(t => t.id === "clawd") || themes[0] || null;
     if (def) await setTheme(def.id);
   }
 }
@@ -176,7 +174,7 @@ export function getThemes() {
 }
 
 export function getCurrentThemeId() {
-  return currentTheme?.id || "default";
+  return currentTheme?.id || "clawd";
 }
 
 export function getCurrentThemeName() {

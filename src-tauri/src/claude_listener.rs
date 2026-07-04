@@ -223,6 +223,7 @@ fn payload_from_last_jsonl_line(path: &Path) -> Option<Value> {
     } else {
         String::new()
     };
+    let tokens = infer_tokens(&json);
 
     Some(serde_json::json!({
         "source": "claude-project-log-listener",
@@ -232,8 +233,22 @@ fn payload_from_last_jsonl_line(path: &Path) -> Option<Value> {
         "tool_name": tool_name,
         "prompt": prompt,
         "reply": reply,
+        "tokens": tokens,
         "timestamp": json.get("timestamp").cloned().unwrap_or(Value::Null),
     }))
+}
+
+/// Total tokens for the latest assistant turn (context + generated), from the
+/// transcript's `message.usage`. Mirrors Claude Code's token status readout.
+fn infer_tokens(json: &Value) -> u64 {
+    let Some(usage) = json.get("message").and_then(|m| m.get("usage")) else {
+        return 0;
+    };
+    let get = |k: &str| usage.get(k).and_then(Value::as_u64).unwrap_or(0);
+    get("input_tokens")
+        + get("output_tokens")
+        + get("cache_read_input_tokens")
+        + get("cache_creation_input_tokens")
 }
 
 fn infer_event(json: &Value) -> &'static str {

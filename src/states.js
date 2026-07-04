@@ -37,6 +37,7 @@ export const STATE_DONE     = S("taskDone",     "done",    "Ready for review", "
 export const STATE_HELLO    = S("sessionStart", "working", "Starting",         "anim-pop",    "👋");
 export const STATE_BYE      = S("sessionEnd",   "idle",    "Session ended",    "anim-sleepy", "👋");
 export const STATE_SUBAGENT = S("subagent",     "working", "Subagent working", "anim-bob",    "🔀");
+export const STATE_LIMITED  = S("error",        "waiting", "Usage limit reached", "anim-shake", "🚧");
 
 // When a theme lacks a sprite for a stateId, try these before falling back to emoji.
 export const SPRITE_FALLBACK = {
@@ -86,8 +87,13 @@ export function stateForEvent(event) {
       return STATE_ERROR;
 
     case "Notification":
-    case "PermissionRequest":
+    case "PermissionRequest": {
+      const msg = String(event.message || "").toLowerCase();
+      if (msg.includes("limit") || msg.includes("too many requests") || msg.includes("rate")) {
+        return STATE_LIMITED;
+      }
       return STATE_WAITING;
+    }
 
     case "Stop":
     case "turn.completed":

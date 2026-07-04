@@ -57,7 +57,7 @@ const config: Config = {
         floaty: "floaty 3s ease-in-out infinite",
         pulseGlow: "pulseGlow 2s ease-in-out infinite",
         blink: "blink 1s steps(1) infinite",
-        marquee: "marquee 18s linear infinite",
+        marquee: "marquee 40s linear infinite",
       },
     },
   },

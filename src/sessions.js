@@ -39,6 +39,7 @@ const bubbleStatusEl = document.getElementById("bubble-status");
 const bubbleProjectEl = document.getElementById("bubble-project");
 const bubbleReplyEl = document.getElementById("bubble-reply");
 const bubbleDetailEl = document.getElementById("bubble-detail");
+const bubbleMetaEl = document.getElementById("bubble-meta");
 const panelEl = document.getElementById("panel");
 const panelRowsEl = document.getElementById("panel-rows");
 
@@ -57,6 +58,8 @@ function getOrCreateSession(sessionId) {
       title: "",
       prompt: "",
       reply: "",
+      tokens: 0,
+      tasks: 0,
       state: STATE_IDLE,
       detail: "",
       lastSeen: Date.now(),
@@ -143,10 +146,16 @@ export function handleEvent(event) {
   // but still absorb Claude's latest reply text, which only transcripts have.
   const existing = sessions[sessionId];
   if (fromListener && existing && existing.hookManaged) {
+    let touched = false;
     if (typeof event.reply === "string" && event.reply.trim()) {
       existing.reply = clip(event.reply, 160);
-      refreshDisplay();
+      touched = true;
     }
+    if (typeof event.tokens === "number" && event.tokens > 0) {
+      existing.tokens = event.tokens;
+      touched = true;
+    }
+    if (touched) refreshDisplay();
     return;
   }
 
@@ -186,6 +195,13 @@ export function handleEvent(event) {
   if (typeof event.reply === "string" && event.reply.trim()) {
     session.reply = clip(event.reply, 160);
   }
+  if (typeof event.tokens === "number" && event.tokens > 0) {
+    session.tokens = event.tokens;
+  }
+  // Running-task count = live subagents (mirrors Claude's "N running tasks").
+  if (hookEvent === "SubagentStart") session.tasks = (session.tasks || 0) + 1;
+  else if (hookEvent === "SubagentStop") session.tasks = Math.max(0, (session.tasks || 0) - 1);
+  else if (hookEvent === "Stop" || hookEvent === "SessionEnd") session.tasks = 0;
   session.lastSeen = Date.now();
 
   // Sound alerts on meaningful transitions.
@@ -331,6 +347,20 @@ function rowText(s) {
   return detail && detail !== label.toLowerCase() ? `${label} · ${s.detail}` : label;
 }
 
+function fmtTokens(n) {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`;
+  return String(n);
+}
+
+// "2 running tasks · 12.4k tokens" — mirrors Claude Code's status line.
+function metaText(s) {
+  const parts = [];
+  if (s.tasks > 0) parts.push(`${s.tasks} running task${s.tasks > 1 ? "s" : ""}`);
+  if (s.tokens > 0) parts.push(`${fmtTokens(s.tokens)} tokens`);
+  return parts.join(" · ");
+}
+
 export function refreshDisplay() {
   const { list, nonIdle, top, petState } = aggregate();
   const poking = Date.now() < pokeUntil;
@@ -365,6 +395,7 @@ export function refreshDisplay() {
     bubbleReplyEl.textContent = "I’m here to keep your Claude sessions moving.";
     bubbleReplyEl.style.display = "";
     bubbleDetailEl.style.display = "none";
+    bubbleMetaEl.style.display = "none";
     bubbleEl.classList.remove("hidden");
   } else if (showBubble) {
     bubbleProjectEl.textContent = top.title || top.project;
@@ -388,6 +419,14 @@ export function refreshDisplay() {
       bubbleDetailEl.style.display = "";
     } else {
       bubbleDetailEl.style.display = "none";
+    }
+
+    const meta = metaText(top);
+    if (meta) {
+      bubbleMetaEl.textContent = meta;
+      bubbleMetaEl.style.display = "";
+    } else {
+      bubbleMetaEl.style.display = "none";
     }
     bubbleEl.classList.remove("hidden");
   } else {
@@ -421,6 +460,13 @@ export function refreshDisplay() {
       status.textContent = busy ? rowText(s) : (s.reply || s.prompt || s.state.label);
       main.appendChild(proj);
       main.appendChild(status);
+      const meta = metaText(s);
+      if (meta) {
+        const metaEl = document.createElement("div");
+        metaEl.className = "row-meta";
+        metaEl.textContent = meta;
+        main.appendChild(metaEl);
+      }
 
       const time = document.createElement("span");
       time.className = "row-time";

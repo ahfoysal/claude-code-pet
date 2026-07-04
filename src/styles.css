@@ -47,6 +47,25 @@ body {
   gap: 2px;
 }
 
+/* Near the left screen edge: pet on the left, bubble/panel extend right. */
+body.anchor-left #stage {
+  align-items: flex-start;
+  padding: 10px 10px 6px 14px;
+}
+body.anchor-left #bubble,
+body.anchor-left #panel {
+  margin-left: 4px;
+  margin-right: 0;
+}
+body.anchor-left #bubble-toggle {
+  left: 30px;
+  right: auto;
+}
+body.anchor-left #pet-badge {
+  left: 4px;
+  right: auto;
+}
+
 /* ── Speech bubble (Codex-style: white card, no border, no tail) ── */
 #bubble {
   position: relative;
@@ -108,6 +127,28 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   font-variant-ligatures: none;
+}
+
+/* Running tasks · tokens — Claude Code status style */
+#bubble-meta {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--run);
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row-meta {
+  margin-top: 1px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--run);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Collapse chevron under the bubble — only revealed on hover */
