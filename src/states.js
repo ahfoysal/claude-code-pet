@@ -188,9 +188,14 @@ export function detailForEvent(event) {
 export function projectForEvent(event) {
   const path = event.cwd || event.workspace || event.project_path || event.path || "";
   if (typeof path === "string" && path.trim()) {
-    const parts = path.split(/[\\/]/).filter(Boolean);
-    const leaf = parts[parts.length - 1];
-    if (leaf) return leaf;
+    const segs = path.split(/[\\/]/).filter(Boolean);
+    // A home directory (/Users/<user>, /home/<user>, C:\Users\<user>) is not a
+    // project — using its leaf would show the username (e.g. "apple").
+    const isHome =
+      (segs.length === 2 && /^(Users|home)$/i.test(segs[0])) ||
+      (segs.length === 3 && /^Users$/i.test(segs[1]));
+    const leaf = segs[segs.length - 1];
+    if (!isHome && leaf) return leaf;
   }
   const title = event.thread_title || event.task_title || event.title;
   if (typeof title === "string" && title.trim()) return title.trim().slice(0, 28);

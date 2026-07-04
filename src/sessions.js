@@ -388,6 +388,14 @@ function metaText(s) {
   return parts.join(" · ");
 }
 
+// Activity + live meta on ONE line: "Running · npm test · 1m 41s · 1.0k tokens".
+function statusLine(s) {
+  const activity = rowText(s);
+  const meta = metaText(s);
+  if (activity && meta) return `${activity} · ${meta}`;
+  return activity || meta;
+}
+
 export function refreshDisplay() {
   const { list, nonIdle, top, petState } = aggregate();
   const poking = Date.now() < pokeUntil;
@@ -436,25 +444,18 @@ export function refreshDisplay() {
       bubbleReplyEl.style.display = "none";
     }
 
+    // Activity + time + tokens on ONE line, like Claude's status.
     const busy = ["working", "waiting", "error"].includes(top.state.kind);
     if (busy) {
-      bubbleDetailEl.textContent = rowText(top);
+      bubbleDetailEl.textContent = statusLine(top);
       bubbleDetailEl.style.display = "";
     } else if (!replyText) {
-      // Codex shows plain state text like "Idle" when nothing else to say.
-      bubbleDetailEl.textContent = top.state.label;
+      bubbleDetailEl.textContent = statusLine(top) || top.state.label;
       bubbleDetailEl.style.display = "";
     } else {
       bubbleDetailEl.style.display = "none";
     }
-
-    const meta = metaText(top);
-    if (meta) {
-      bubbleMetaEl.textContent = meta;
-      bubbleMetaEl.style.display = "";
-    } else {
-      bubbleMetaEl.style.display = "none";
-    }
+    bubbleMetaEl.style.display = "none"; // merged into the detail line
     bubbleEl.classList.remove("hidden");
   } else {
     bubbleEl.classList.add("hidden");
@@ -484,16 +485,10 @@ export function refreshDisplay() {
       const status = document.createElement("div");
       status.className = "row-status";
       const busy = ["working", "waiting", "error"].includes(s.state.kind);
-      status.textContent = busy ? rowText(s) : (s.reply || s.prompt || s.state.label);
+      // Activity + time + tokens on one line for active sessions.
+      status.textContent = busy ? statusLine(s) : (s.reply || s.prompt || s.state.label);
       main.appendChild(proj);
       main.appendChild(status);
-      const meta = metaText(s);
-      if (meta) {
-        const metaEl = document.createElement("div");
-        metaEl.className = "row-meta";
-        metaEl.textContent = meta;
-        main.appendChild(metaEl);
-      }
 
       const time = document.createElement("span");
       time.className = "row-time";
