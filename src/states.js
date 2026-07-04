@@ -26,6 +26,9 @@ export const TOOL_STATES = {
   Agent:        S("task",   "working", "Delegating", "anim-bob",   "🤖"),
   WebFetch:     S("web",    "working", "Browsing",   "anim-bob",   "🌐"),
   WebSearch:    S("web",    "working", "Browsing",   "anim-bob",   "🌐"),
+  TodoWrite:    S("task",   "working", "Planning",   "anim-bob",   "📝"),
+  ExitPlanMode: S("task",   "working", "Planning",   "anim-bob",   "📝"),
+  Skill:        S("task",   "working", "Using a skill", "anim-bob", "✨"),
 };
 
 export const STATE_IDLE     = S("idle",         "idle",    "Idle",             "anim-float",  "🐱");
@@ -68,9 +71,16 @@ export function stateForEvent(event) {
     case "turn.started":
       return STATE_THINKING;
 
-    case "PreToolUse":
+    case "PreToolUse": {
       if (TOOL_STATES[tool]) return TOOL_STATES[tool];
-      return S("unknown", "working", `Using ${tool || "tools"}`, "anim-bob", "🔧");
+      // MCP tools arrive as "mcp__server__action" — show the readable part.
+      let label = tool || "tools";
+      if (label.startsWith("mcp__")) {
+        const parts = label.split("__");
+        label = (parts[2] || parts[1] || "tool").replace(/_/g, " ");
+      }
+      return S("unknown", "working", `Using ${label}`, "anim-bob", "🔧");
+    }
 
     case "PostToolUse": {
       const resp = event.tool_response;
