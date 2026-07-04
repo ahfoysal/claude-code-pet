@@ -146,6 +146,14 @@
       ],
       "fps": 3,
       "src": "work-1.svg"
+    },
+    "walk": {
+      "frames": [
+        "idle-1.svg",
+        "idle-2.svg"
+      ],
+      "fps": 1.6,
+      "src": "idle-1.svg"
     }
   }
 }

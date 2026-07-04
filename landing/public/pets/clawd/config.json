@@ -10,6 +10,14 @@
       "fps": 1.6,
       "src": "idle-1.svg"
     },
+    "walk": {
+      "frames": [
+        "walk-1.svg",
+        "walk-2.svg"
+      ],
+      "fps": 5,
+      "src": "walk-1.svg"
+    },
     "work": {
       "frames": [
         "work-1.svg",

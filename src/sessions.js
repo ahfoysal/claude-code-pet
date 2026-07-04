@@ -355,15 +355,24 @@ function frameAt(frames, fps) {
   return frames[idx];
 }
 
-// Sprite frame ticker — only touches img.src, cheap.
+// Sprite frame ticker — only touches img.src, cheap. While the window is
+// being dragged, play the pet's walk cycle (legs stepping) instead.
 setInterval(() => {
-  if (!currentFrames || currentFrames.length < 2) return;
   const img = emojiEl.querySelector("img");
-  if (img) {
-    const src = frameAt(currentFrames, currentFps);
-    if (img.src !== src) img.src = src;
+  if (!img) return;
+  let frames = currentFrames;
+  let fps = currentFps;
+  if (document.body.classList.contains("is-dragging")) {
+    const walk = getCharacterForState({ stateId: "walk", emoji: "🐾" });
+    if (walk.type === "image" && walk.frames && walk.frames.length >= 2) {
+      frames = walk.frames;
+      fps = walk.fps || 5;
+    }
   }
-}, 120);
+  if (!frames || frames.length < 2) return;
+  const src = frameAt(frames, fps);
+  if (img.src !== src) img.src = src;
+}, 100);
 
 // Live ticker — keeps the "1m 41s" elapsed time counting up while a session
 // works, and lets the pet re-evaluate when a done celebration (5s) ends.

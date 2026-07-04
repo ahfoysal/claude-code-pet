@@ -276,6 +276,8 @@ const FPS = { idle: 1.6, work: 3, success: 3, taskDone: 3, error: 2.5, notificat
 const ALIASES = {
   read: "work", write: "work", bash: "work", search: "work", web: "work",
   task: "work", subagent: "work", thinking: "work", unknown: "work",
+  // Roster pets reuse their two-frame idle bob while being dragged.
+  walk: "idle",
 };
 
 // ── Rendering ────────────────────────────────────────

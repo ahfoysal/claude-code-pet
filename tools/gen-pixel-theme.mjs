@@ -198,12 +198,19 @@ const WAVE_B = [
   [17, 10, " KK"],
 ];
 
+// Walking: lift one front paw at a time so the legs visibly step. The feet
+// sit on row 18 (left paw x2-5, right paw x12-15); lift = clear it there and
+// redraw one row up.
+const STEP_L = [[2, 18, "OOOO"], [2, 17, "KWWK"]];
+const STEP_R = [[12, 18, "OOOO"], [12, 17, "KWWK"]];
+
 // state → [frame1 patches, frame2 patches]
 // Codex-style: ONE uniform "working on the laptop" animation for every
 // working state (the bubble text says what kind of work it is); idle is the
 // plain sitting cat, exactly as-is.
 const STATES = {
   idle:         { fps: 1.6, frames: [[TAIL_UP], [TAIL_DOWN, BLINK]] },
+  walk:         { fps: 5,   frames: [[TAIL_UP, STEP_L], [TAIL_DOWN, STEP_R]] },
   work:         { fps: 3,   frames: [[TAIL_UP, EYES_DOWN, LAPTOP], [TAIL_DOWN, EYES_DOWN, LAPTOP, LAPTOP_TYPE]] },
   success:      { fps: 3,   frames: [[TAIL_UP, HAPPY_EYES, STARS_A], [TAIL_DOWN, HAPPY_EYES, STARS_B]] },
   taskDone:     { fps: 3,   frames: [[TAIL_UP, HAPPY_EYES, CONFETTI_A], [TAIL_DOWN, HAPPY_EYES, CONFETTI_B]] },

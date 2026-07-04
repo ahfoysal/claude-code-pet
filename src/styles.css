@@ -466,10 +466,11 @@ body.is-dragging #character-area:hover #emoji {
   animation: waddle 0.3s linear infinite;
 }
 
+/* Gentle body bob so the stepping leg frames read as walking (small tilt). */
 @keyframes waddle {
-  0%   { transform: rotate(-7deg) translateY(0); }
-  25%  { transform: rotate(0deg) translateY(-3px); }
-  50%  { transform: rotate(7deg) translateY(0); }
-  75%  { transform: rotate(0deg) translateY(-3px); }
-  100% { transform: rotate(-7deg) translateY(0); }
+  0%   { transform: rotate(-2deg) translateY(0); }
+  25%  { transform: rotate(0deg) translateY(-2px); }
+  50%  { transform: rotate(2deg) translateY(0); }
+  75%  { transform: rotate(0deg) translateY(-2px); }
+  100% { transform: rotate(-2deg) translateY(0); }
 }
