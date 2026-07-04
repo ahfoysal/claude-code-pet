@@ -16,6 +16,8 @@ A little pixel creature floats above all your windows and reacts to what Claude 
 
 <br>
 
+**[▶ Live site](https://landing-beta-ten-62.vercel.app)**
+
 ![macOS](https://img.shields.io/badge/macOS-supported-000?logo=apple) &nbsp;
 ![Windows](https://img.shields.io/badge/Windows-supported-0078D6?logo=windows) &nbsp;
 ![License](https://img.shields.io/badge/license-MIT-4cc38a) &nbsp;

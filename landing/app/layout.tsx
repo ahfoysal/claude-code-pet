@@ -22,7 +22,7 @@ const description =
 export const metadata: Metadata = {
   title,
   description,
-  metadataBase: new URL("https://claude-code-pet.vercel.app"),
+  metadataBase: new URL("https://landing-beta-ten-62.vercel.app"),
   openGraph: { title, description, type: "website", images: ["/demo.gif"] },
   twitter: { card: "summary_large_image", title, description, images: ["/demo.gif"] },
   icons: {
