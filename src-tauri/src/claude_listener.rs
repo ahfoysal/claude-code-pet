@@ -220,8 +220,10 @@ fn payload_from_last_jsonl_line(path: &Path) -> Option<Value> {
     } else {
         String::new()
     };
-    // Claude's latest reply text (assistant records that aren't tool calls).
-    let reply = if event == "TaskCompleted" {
+    // Claude's latest words — the text from ANY assistant message (including
+    // the preamble on tool-use messages), so the bubble updates on every new
+    // message, not only the final reply.
+    let reply = if json.get("type").and_then(Value::as_str) == Some("assistant") {
         infer_message_text(&json).unwrap_or_default()
     } else {
         String::new()
