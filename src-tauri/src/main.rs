@@ -270,6 +270,27 @@ fn focus_claude() {
             .args(["-a", "Claude"])
             .spawn();
     }
+    #[cfg(target_os = "windows")]
+    {
+        // Bring an existing Claude window to the front (by title), falling back
+        // to launching Claude if it isn't running.
+        let _ = std::process::Command::new("powershell")
+            .args([
+                "-NoProfile",
+                "-WindowStyle",
+                "Hidden",
+                "-Command",
+                "$s = New-Object -ComObject WScript.Shell; \
+                 if (-not $s.AppActivate('Claude')) { Start-Process claude }",
+            ])
+            .spawn();
+    }
+    #[cfg(target_os = "linux")]
+    {
+        let _ = std::process::Command::new("sh")
+            .args(["-c", "wmctrl -a Claude || claude"])
+            .spawn();
+    }
 }
 
 /// Tauri's alwaysOnTop + visibleOnAllWorkspaces is not enough on macOS to

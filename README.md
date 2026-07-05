@@ -75,9 +75,11 @@ All roster art is generated from ASCII grids — see [`tools/gen-pet-pack.mjs`](
 
 ## Install
 
-Works on **macOS** and **Windows**. Requires [Rust](https://rustup.rs), Node 18+, and [Claude Code](https://claude.com/claude-code).
+**macOS** is the primary, fully-tested platform. **Windows** builds in CI and is functional but less battle-tested (a couple of niceties like click-to-focus use a best-effort path there).
 
-Build from source (same first step everywhere):
+Pre-built installers for both are attached to each [Release](https://github.com/ahfoysal/claude-code-pet/releases) (macOS `.dmg`, Windows `.msi` / `.exe`). Or build from source:
+
+Requires [Rust](https://rustup.rs), Node 18+, and [Claude Code](https://claude.com/claude-code). Same first step everywhere:
 
 ```bash
 git clone https://github.com/ahfoysal/claude-code-pet.git
