@@ -178,7 +178,7 @@ Bump the version in **both** `src-tauri/tauri.conf.json` and `src-tauri/Cargo.to
 |---|---|
 | **macOS** | Fully built, installed, runtime-tested ✅ |
 | **Windows** | Compiles + produces `.msi`/`.exe`, CI-verified, installers published in v1.0.0. `focus_claude` is best-effort (PowerShell AppActivate). **Not runtime-tested on real Windows.** |
-| **Linux** | `focus_claude` (wmctrl) added; Tauri supports it. **No CI job yet** — needs the ubuntu webkit deps job. **Wayland caveat:** transparent always-on-top + click-through are reliable on X11, may not work under Wayland. |
+| **Linux** | Compiles + bundles `.deb`/`.rpm`/`.AppImage`, CI-verified (ubuntu-22.04 leg in `build.yml`). Driven by the Claude Code **CLI** (hooks → TCP `:19876`), not a desktop app — there is no Claude Code desktop app on Linux. `focus_claude` uses `wmctrl -a Claude` to raise the terminal running `claude`. **Not runtime-tested on real Linux.** **Wayland caveat:** transparent always-on-top + click-through are reliable on X11, may not work under Wayland. |
 
 ---
 
@@ -210,8 +210,8 @@ The persistent memory lives at
 
 ## 12. Open items / next steps
 
-- [ ] Add a **Linux CI job** (ubuntu-22.04 + webkit deps → `.deb`/`.AppImage`) and note Wayland limits.
-- [ ] **Runtime-test on real Windows and Linux** desktops (the one thing CI can't do).
+- [x] Add a **Linux CI job** (ubuntu-22.04 + webkit2gtk-4.1 deps → `.deb`/`.rpm`/`.AppImage`). Done in `build.yml`. Build-verified only; Wayland runtime still open (below).
+- [ ] **Runtime-test on real Windows and Linux** desktops (the one thing CI can't do) — in particular the transparent always-on-top + click-through overlay and `focus_claude` under both X11 and Wayland.
 - [ ] Automate the Vercel **re-alias** (or move to a project rename so the URL is native).
 - [ ] Optional: convert `src/` frontend to TypeScript for build-time type safety.
 - [ ] Optional: support loading official Codex `spritesheet.webp` pet packs (a converter).
