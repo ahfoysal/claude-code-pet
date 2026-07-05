@@ -132,6 +132,9 @@ fn snapshot_payload(json: &Value) -> Option<Value> {
         .or_else(|| json.get("originCwd"))
         .and_then(Value::as_str)
         .unwrap_or("");
+    let cwd_label = cwd
+        .rsplit(['/', '\\'])
+        .find(|segment| !segment.is_empty() && !segment.ends_with(':'));
     // The real chat title (Recents sidebar name); fall back to the folder.
     let title = json
         .get("title")
@@ -143,7 +146,7 @@ fn snapshot_payload(json: &Value) -> Option<Value> {
             if cwd.is_empty() {
                 String::new()
             } else {
-                format!("Working in {}", cwd.rsplit('/').next().unwrap_or(cwd))
+                format!("Working in {}", cwd_label.unwrap_or(cwd))
             }
         });
 
