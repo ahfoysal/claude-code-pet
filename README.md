@@ -2,7 +2,7 @@
 
 # Claude Code Pet
 
-**A pixel-art desk companion for Claude Code — for macOS & Windows.**
+**A pixel-art desk companion for Claude Code — for macOS, Windows & Linux.**
 
 A little pixel creature floats above all your windows and reacts to what Claude Code is doing in real time. It shows the active chat, Claude's latest reply, what tool is running, and alerts you the moment Claude needs your input.
 
@@ -20,6 +20,7 @@ A little pixel creature floats above all your windows and reacts to what Claude 
 
 ![macOS](https://img.shields.io/badge/macOS-supported-000?logo=apple) &nbsp;
 ![Windows](https://img.shields.io/badge/Windows-supported-0078D6?logo=windows) &nbsp;
+![Linux](https://img.shields.io/badge/Linux-CI--built-FCC624?logo=linux&logoColor=000) &nbsp;
 ![License](https://img.shields.io/badge/license-MIT-4cc38a) &nbsp;
 [![GitHub](https://img.shields.io/badge/source-github-fff?logo=github)](https://github.com/ahfoysal/claude-code-pet)
 
@@ -75,9 +76,9 @@ All roster art is generated from ASCII grids — see [`tools/gen-pet-pack.mjs`](
 
 ## Install
 
-**macOS** is the primary, fully-tested platform. **Windows** builds in CI and is functional but less battle-tested (a couple of niceties like click-to-focus use a best-effort path there).
+**macOS** is the primary, fully-tested platform. **Windows** builds in CI and is functional but less battle-tested (a couple of niceties like click-to-focus use a best-effort path there). **Linux** builds in CI too (`.deb` / `.rpm` / `.AppImage`) but is **build-verified only — not yet runtime-tested**: the transparent, always-on-top, click-through overlay is reliable on **X11** and unverified on **Wayland**, and click-to-focus needs `wmctrl`. The pet is driven by the Claude Code **CLI + hooks** (there is no Claude Code desktop app on Linux) — run `claude` in a terminal and the pet reacts.
 
-Pre-built installers for both are attached to each [Release](https://github.com/ahfoysal/claude-code-pet/releases) (macOS `.dmg`, Windows `.msi` / `.exe`). Or build from source:
+Pre-built installers are attached to each [Release](https://github.com/ahfoysal/claude-code-pet/releases) (macOS `.dmg`, Windows `.msi` / `.exe`, and — from the first tag cut after the Linux CI leg landed — Linux `.AppImage` / `.deb` / `.rpm`). Or build from source:
 
 Requires [Rust](https://rustup.rs), Node 18+, and [Claude Code](https://claude.com/claude-code). Same first step everywhere:
 
@@ -108,6 +109,16 @@ Drag `Claude Code Pet.app` to `/Applications`. Optionally add it to **System Set
 
 To start it with Windows, drop a shortcut to `claude-code-pet.exe` in your Startup folder (`shell:startup`).
 
+### Linux
+
+```bash
+./install.sh                                              # copies binary + pets to ~/.claude-code-pet
+~/.claude-code-pet/claude-code-pet install-claude-hooks   # registers hooks (backs up settings.json first)
+~/.claude-code-pet/claude-code-pet                        # run it
+```
+
+Best on an **X11** (or XWayland) session; the overlay is unverified under native Wayland. Click-to-focus uses `wmctrl` — install it with `sudo apt install wmctrl` (or your distro's equivalent). Prebuilt `.AppImage` / `.deb` / `.rpm` are produced by CI and attached to Releases cut after the Linux leg landed.
+
 ### Opens with Claude
 
 Once hooks are installed, the pet **auto-launches whenever you start a Claude Code session** — you don't have to open it manually. Single-instance protection means it never opens twice.
@@ -115,7 +126,7 @@ Once hooks are installed, the pet **auto-launches whenever you start a Claude Co
 Hooks apply to sessions started **after** installation. Remove them any time:
 
 ```bash
-# macOS
+# macOS / Linux
 ~/.claude-code-pet/claude-code-pet uninstall-claude-hooks
 # Windows
 & "$env:LOCALAPPDATA\claude-code-pet\claude-code-pet.exe" uninstall-claude-hooks
