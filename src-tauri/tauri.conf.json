@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/nicedozie4u/tauri-schema/v2/schema.json",
   "productName": "Claude Code Pet",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "identifier": "com.claudecodepet.app",
   "build": {
     "frontendDist": "../src"

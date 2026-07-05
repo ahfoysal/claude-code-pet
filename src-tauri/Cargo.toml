@@ -1,6 +1,6 @@
 [package]
 name = "claude-code-pet"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 description = "Claude Code Pet — a pixel desktop companion that reacts to Claude Code in real time"
 license = "MIT"
